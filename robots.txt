@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Disallow: /media/
+Disallow: /asset/
+
+Sitemap: http://www.yunaitong.cn/sitemap.xml

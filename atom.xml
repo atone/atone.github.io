@@ -1,0 +1,2077 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Naitong Yu]]></title>
+  <link href="https://www.yunaitong.cn/atom.xml" rel="self"/>
+  <link href="https://www.yunaitong.cn/"/>
+  <updated>2018-07-01T23:03:03+08:00</updated>
+  <id>https://www.yunaitong.cn/</id>
+  <author>
+    <name><![CDATA[]]></name>
+    
+  </author>
+  <generator uri="http://www.mweb.im/">MWeb</generator>
+  
+  <entry>
+    <title type="html"><![CDATA[二叉树的遍历（前序、中序、后序、层次）]]></title>
+    <link href="https://www.yunaitong.cn/binary-tree-traverse.html"/>
+    <updated>2016-03-28T12:53:34+08:00</updated>
+    <id>https://www.yunaitong.cn/binary-tree-traverse.html</id>
+    <content type="html"><![CDATA[
+<h2 id="toc_0">基本性质</h2>
+
+<p>每个结点最多有两棵子树，左子树和右子树，顺序不可颠倒。</p>
+
+<ol>
+<li>非空二叉树第\(n\)层最多有\(2^{n-1}\)个元素。</li>
+<li>深度为\(h\)的二叉树，至多有\(2^h-1\)个结点。</li>
+</ol>
+
+<h2 id="toc_1">结点结构</h2>
+
+<pre><code class="language-java">class TreeNode {
+    int val;
+    TreeNode left;
+    TreeNode right;
+    TreeNode(int x) { val = x; }
+}
+</code></pre>
+
+<h2 id="toc_2">二叉树的遍历</h2>
+
+<p>遍历即将树的所有结点都访问且仅访问一次。按照根结点访问次序的不同，可以分为前序遍历，中序遍历，后序遍历。</p>
+
+<ul>
+<li>前序遍历：根结点 -&gt; 左子树 -&gt; 右子树</li>
+<li>中序遍历：左子树 -&gt; 根结点 -&gt; 右子树</li>
+<li>后序遍历：左子树 -&gt; 右子树 -&gt; 根结点</li>
+</ul>
+
+<p>另外还有一种层次遍历，即每一层都从左向右遍历。</p>
+
+<p>例如：求下图的二叉树的遍历</p>
+
+<p><img src="media/14591408147877/14591414567288.jpg" alt=""/></p>
+
+<p>前序遍历：abdefgc<br/>
+中序遍历：debgfac<br/>
+后序遍历：edgfbca<br/>
+层次遍历：abcdfeg</p>
+
+<span id="more"></span><!-- more -->
+
+<h3 id="toc_3">前序遍历</h3>
+
+<h4 id="toc_4">递归实现</h4>
+
+<pre><code class="language-java">List&lt;Integer&gt; preorderTraversal(TreeNode root) {
+    List&lt;Integer&gt; result = new ArrayList&lt;Integer&gt;();
+    if (root == null)
+        return result;
+    result.add(root.val);
+    result.addAll(preorderTraversal(root.left));
+    result.addAll(preorderTraversal(root.right));
+    return result;
+}
+</code></pre>
+
+<h4 id="toc_5">非递归实现</h4>
+
+<pre><code class="language-java">List&lt;Integer&gt; preorderTraversal(TreeNode root) {
+    List&lt;Integer&gt; result = new ArrayList&lt;Integer&gt;();
+    if (root == null)
+        return result;
+    Stack&lt;TreeNode&gt; stack = new Stack&lt;TreeNode&gt;();
+    stack.push(root);
+    while (!stack.isEmpty()) {
+        TreeNode node = stack.pop();
+        result.add(node.val);
+        if (node.right != null)
+            stack.push(node.right);
+        if (node.left != null)
+            stack.push(node.left);
+    }
+    return result;
+}
+</code></pre>
+
+<p>另一种实现方法：</p>
+
+<pre><code class="language-java">List&lt;Integer&gt; preorderTraversal(TreeNode root) {
+    List&lt;Integer&gt; result = new ArrayList&lt;Integer&gt;();
+    if (root == null)
+        return result;
+    Stack&lt;TreeNode&gt; stack = new Stack&lt;TreeNode&gt;();
+    TreeNode p = root;
+    while (p != null || !stack.isEmpty()) {
+        if (p != null) {
+            result.add(p.val);
+            stack.push(p);
+            p = p.left;
+        } else {
+            p = stack.pop();
+            p = p.right;
+        }
+    }
+    return result;
+}
+</code></pre>
+
+<h3 id="toc_6">中序遍历</h3>
+
+<h4 id="toc_7">递归实现</h4>
+
+<pre><code class="language-java">List&lt;Integer&gt; inorderTraversal(TreeNode root) {
+    List&lt;Integer&gt; result = new ArrayList&lt;Integer&gt;();
+    if (root == null)
+        return result;
+    result.addAll(inorderTraversal(root.left));
+    result.add(root.val);
+    result.addAll(inorderTraversal(root.right));
+    return result;
+}
+</code></pre>
+
+<h4 id="toc_8">非递归实现</h4>
+
+<pre><code class="language-java">List&lt;Integer&gt; inorderTraversal(TreeNode root) {
+    List&lt;Integer&gt; result = new ArrayList&lt;Integer&gt;();
+    if (root == null)
+        return result;
+    Stack&lt;TreeNode&gt; stack = new Stack&lt;TreeNode&gt;();
+    TreeNode p = root;
+    while (p != null || !stack.isEmpty()) {
+        if (p != null) {
+            stack.push(p);
+            p = p.left;
+        } else {
+            p = stack.pop();
+            result.add(p.val);
+            p = p.right;
+        }
+    }
+    return result;
+}
+</code></pre>
+
+<h3 id="toc_9">后序遍历</h3>
+
+<h4 id="toc_10">递归实现</h4>
+
+<pre><code class="language-java">List&lt;Integer&gt; postorderTraversal(TreeNode root) {
+    List&lt;Integer&gt; result = new ArrayList&lt;Integer&gt;();
+    if (root == null)
+        return result;
+    result.addAll(postorderTraversal(root.left));
+    result.addAll(postorderTraversal(root.right));
+    result.add(root.val);
+    return result;
+}
+</code></pre>
+
+<h4 id="toc_11">非递归实现</h4>
+
+<pre><code class="language-java">List&lt;Integer&gt; postorderTraversal(TreeNode root) {
+    List&lt;Integer&gt; result = new ArrayList&lt;Integer&gt;();
+    if (root == null)
+        return result;
+    Stack&lt;TreeNode&gt; stack = new Stack&lt;TreeNode&gt;();
+    TreeNode p = root;
+    TreeNode last = null;
+    while (p != null || !stack.isEmpty()) {
+        if (p != null) {
+            stack.push(p);
+            p = p.left;
+        } else {
+            TreeNode peek = stack.peek();
+            if (peek.right != null &amp;&amp; last != peek.right) {
+                p = peek.right;
+            } else {
+                peek = stack.pop();
+                result.add(peek.val);
+                last = peek;
+            }
+        }
+    }
+    return result;
+}
+</code></pre>
+
+<h3 id="toc_12">层次遍历</h3>
+
+<pre><code class="language-java">List&lt;Integer&gt; levelTraversal(TreeNode root) {
+    List&lt;Integer&gt; result = new ArrayList&lt;Integer&gt;();
+    if (root == null)
+        return result;
+    LinkedList&lt;TreeNode&gt; queue = new LinkedList&lt;TreeNode&gt;();
+    queue.addLast(root);
+    while (queue.size() != 0) {
+        TreeNode node = queue.pollFirst();
+        result.add(node.val);
+        if (node.left != null)
+            queue.addLast(node.left);
+        if (node.right != null)
+            queue.addLast(node.right);
+    }
+    return result;
+}
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[理解 LSTM 网络]]></title>
+    <link href="https://www.yunaitong.cn/understanding-lstm-networks.html"/>
+    <updated>2016-03-21T15:16:10+08:00</updated>
+    <id>https://www.yunaitong.cn/understanding-lstm-networks.html</id>
+    <content type="html"><![CDATA[
+<h2 id="toc_0">循环神经网络(RNN)</h2>
+
+<p>人们的每次思考并不都是从零开始的。比如说你在阅读这篇文章时，你基于对前面的文字的理解来理解你目前阅读到的文字，而不是每读到一个文字时，都抛弃掉前面的思考，从头开始。你的记忆是有持久性的。</p>
+
+<p>传统的神经网络并不能如此，这似乎是一个主要的缺点。例如，假设你在看一场电影，你想对电影里的每一个场景进行分类。传统的神经网络不能够基于前面的已分类场景来推断接下来的场景分类。</p>
+
+<p>循环神经网络(Recurrent Neural Networks)解决了这个问题。这种神经网络带有环，可以将信息持久化。</p>
+
+<p><img src="media/14585445702525/14585451475265.jpg" alt="Recurrent Neural Networks have loops. " class="mw_img_center" style="width:100px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<span id="more"></span><!-- more -->
+
+<p>在上图所示的神经网络\(A\)中，输入为\(X_t\)，输出为\(h_t\)。\(A\)上的环允许将每一步产生的信息传递到下一步中。环的加入使得RNN变得神秘。不过，如果你多思考一下的话，其实RNN跟普通的神经网络也没有那么不同。一个RNN可以看作是同一个网络的多份副本，每一份都将信息传递到下一个副本。如果我们将环展开的话：</p>
+
+<p><img src="media/14585445702525/14585464218639.png" alt="An unrolled recurrent neural network. " class="mw_img_center" style="width:600px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<p>这种链式结构展示了RNN与序列和列表的密切关系。RNN的这种结构能够非常自然地使用这类数据。而且事实的确如此。在过去的几年里，RNN在一系列的任务中都取得了令人惊叹的成就，比如语音识别，语言建模，翻译，图片标题等等。关于RNN在各个领域所取得的令人惊叹的成就，参见<a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">这篇文章</a>。</p>
+
+<p>LSTM是这一系列成功中的必要组成部分。LSTM(Long Short Term Memory)是一种特殊的循环神经网络，在许多任务中，LSTM表现得比标准的RNN要出色得多。几乎所有基于RNN的令人赞叹的结果都是LSTM取得的。本文接下来将着重介绍LSTM。</p>
+
+<h2 id="toc_1">长期依赖(Long Term Dependencies)的问题</h2>
+
+<p>RNN的一个核心思想是将以前的信息连接到当前的任务中来，例如，通过前面的视频帧来帮助理解当前帧。如果RNN真的能够这样做的话，那么它们将会极其有用。但是事实真是如此吗？未必。</p>
+
+<p>有时候，我们只需要看最近的信息，就可以完成当前的任务。比如，考虑一个语言模型，通过前面的单词来预测接下来的单词。如果我们想预测句子“the clouds are in the <em>sky</em>”中的最后一个单词，我们不需要更多的上下文信息——很明显下一个单词应该是sky。在这种情况下，当前位置与相关信息所在位置之间的距离相对较小，RNN可以被训练来使用这样的信息。</p>
+
+<p><img src="media/14585445702525/14585476990034.jpg" alt="" class="mw_img_center" style="width:400px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<p>然而，有时候我们需要更多的上下文信息。比如，我们想预测句子“I grew up in France&hellip; I speak fluent <em>French</em>”中的最后一个单词。最近的信息告诉我们，最后一个单词可能是某种语言的名字，然而如果我们想确定到底是哪种语言的话，我们需要France这个更远的上下文信息。实际上，相关信息和需要该信息的位置之间的距离可能非常的远。</p>
+
+<p>不幸的是，随着距离的增大，RNN对于如何将这样的信息连接起来无能为力。</p>
+
+<p><img src="media/14585445702525/14585481509571.png" alt="" class="mw_img_center" style="width:600px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<p>理论上说，RNN是有能力来处理这种长期依赖(Long Term Dependencies)的。人们可以通过精心调参来构建模型处理一个这种玩具问题(Toy Problem)。不过，在实际问题中，RNN并没有能力来学习这些。<a href="http://people.idsia.ch/%7Ejuergen/SeppHochreiter1991ThesisAdvisorSchmidhuber.pdf">Hochreiter (1991) German</a>更深入地讲了这个问题，<a href="http://www-dsi.ing.unifi.it/%7Epaolo/ps/tnn-94-gradient.pdf">Bengio, et al. (1994)</a>发现了RNN的一些非常基础的问题。</p>
+
+<p>幸运的是，LSTM并没有上述问题！</p>
+
+<h2 id="toc_2">LSTM网络</h2>
+
+<p>LSTM，全称为长短期记忆网络(Long Short Term Memory networks)，是一种特殊的RNN，能够学习到长期依赖关系。LSTM由<a href="http://deeplearning.cs.cmu.edu/pdfs/Hochreiter97_lstm.pdf">Hochreiter &amp; Schmidhuber (1997)</a>提出，许多研究者进行了一系列的工作对其改进并使之发扬光大。LSTM在许多问题上效果非常好，现在被广泛使用。</p>
+
+<p>LSTM在设计上明确地避免了长期依赖的问题。记住长期信息是小菜一碟！所有的循环神经网络都有着重复的神经网络模块形成链的形式。在普通的RNN中，重复模块结构非常简单，例如只有一个tanh层。</p>
+
+<p><img src="media/14585445702525/14585498578776.jpg" alt="The repeating module in a standard RNN contains a single layer. " class="mw_img_center" style="width:600px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<p>LSTM也有这种链状结构，不过其重复模块的结构不同。LSTM的重复模块中有4个神经网络层，并且他们之间的交互非常特别。</p>
+
+<p><img src="media/14585445702525/14585500063294.png" alt="The repeating module in an LSTM contains four interacting layers. " class="mw_img_center" style="width:600px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<p>现在暂且不必关心细节，稍候我们会一步一步地对LSTM的各个部分进行介绍。开始之前，我们先介绍一下将用到的标记。</p>
+
+<p><img src="media/14585445702525/14585501719114.jpg" alt="" class="mw_img_center" style="width:500px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<p>在上图中，每条线表示向量的传递，从一个结点的输出传递到另外结点的输入。粉红圆表示向量的元素级操作，比如相加或者相乘。黄色方框表示神经网络的层。线合并表示向量的连接，线分叉表示向量复制。</p>
+
+<h2 id="toc_3">LSTM核心思想</h2>
+
+<p>LSTM的关键是元胞状态(Cell State)，下图中横穿整个元胞顶部的水平线。</p>
+
+<p>元胞状态有点像是传送带，它直接穿过整个链，同时只有一些较小的线性交互。上面承载的信息可以很容易地流过而不改变。</p>
+
+<p><img src="media/14585445702525/14585507601229.jpg" alt="" class="mw_img_center" style="width:600px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<p>LSTM有能力对元胞状态添加或者删除信息，这种能力通过一种叫门的结构来控制。</p>
+
+<p>门是一种选择性让信息通过的方法。它们由一个Sigmoid神经网络层和一个元素级相乘操作组成。</p>
+
+<p><img src="media/14585445702525/14585511223368.jpg" alt="" class="mw_img_center" style="width:100px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<p>Sigmoid层输出0~1之间的值，每个值表示对应的部分信息是否应该通过。0值表示不允许信息通过，1值表示让所有信息通过。一个LSTM有3个这种门，来保护和控制元胞状态。</p>
+
+<h2 id="toc_4">LSTM分步详解</h2>
+
+<p>LSTM的第一步是决定我们将要从元胞状态中扔掉哪些信息。该决定由一个叫做“遗忘门(Forget Gate)”的Sigmoid层控制。遗忘门观察\(h_{t-1}\)和\(x_t\)，对于元胞状态\(C_{t-1}\)中的每一个元素，输出一个0~1之间的数。1表示“完全保留该信息”，0表示“完全丢弃该信息”。</p>
+
+<p>回到之前的预测下一个单词的例子。在这样的一个问题中，元胞状态可能包含当前主语的性别信息，以用来选择正确的物主代词。当我们遇到一个新的主语时，我们就需要把旧的性别信息遗忘掉。</p>
+
+<p><img src="media/14585445702525/14585517843913.jpg" alt="" class="mw_img_center" style="width:600px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<p>下一步是决定我们将会把哪些新信息存储到元胞状态中。这步分为两部分。首先，有一个叫做“输入门(Input Gate)”的Sigmoid层决定我们要更新哪些信息。接下来，一个tanh层创造了一个新的候选值，\(\tilde{C_t}\)，该值可能被加入到元胞状态中。在下一步中，我们将会把这两个值组合起来用于更新元胞状态。</p>
+
+<p>在语言模型的例子中，我们可能想要把新主语的性别加到元胞状态中，来取代我们已经遗忘的旧值。</p>
+
+<p><img src="media/14585445702525/14585522130400.jpg" alt="" class="mw_img_center" style="width:600px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<p>现在我们该更新旧元胞状态\(C_{t-1}\)到新状态\(C_t\)了。上面的步骤中已经决定了该怎么做，这一步我们只需要实际执行即可。</p>
+
+<p>我们把旧状态\(C_{t-1}\)乘以\(f_t\)，忘掉我们已经决定忘记的内容。然后我们再加上\(i_t * \tilde{C_t}\)，这个值由新的候选值（\(\tilde{C_t}\)）乘以候选值的每一个状态我们决定更新的程度（\(i_t\)）构成。</p>
+
+<p>还是语言模型的例子，在这一步，我们按照之前的决定，扔掉了旧的主语的性别信息，并且添加了新的信息。</p>
+
+<p><img src="media/14585445702525/14585647039038.jpg" alt="" class="mw_img_center" style="width:600px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<p>最后，我们需要决定最终的输出。输出将会基于目前的元胞状态，并且会加入一些过滤。首先我们建立一个Sigmoid层的输出门(Output Gate)，来决定我们将输出元胞的哪些部分。然后我们将元胞状态通过tanh之后（使得输出值在-1到1之间），与输出门相乘，这样我们只会输出我们想输出的部分。</p>
+
+<p>对于语言模型的例子，由于刚刚只输出了一个主语，因此下一步可能需要输出与动词相关的信息。举例来说，可能需要输出主语是单数还是复数，以便于我们接下来选择动词时能够选择正确的形式。</p>
+
+<p><img src="media/14585445702525/14585652046323.jpg" alt="" class="mw_img_center" style="width:600px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<h2 id="toc_5">LSTM的变种</h2>
+
+<p>本文前面所介绍的LSTM是最普通的LSTM，但并非所有的LSTM模型都与前面相同。事实上，似乎每一篇paper中所用到的LSTM都是稍微不一样的版本。不同之处很微小，不过其中一些值得介绍。</p>
+
+<p>一个流行的LSTM变种，由<a href="ftp://ftp.idsia.ch/pub/juergen/TimeCount-IJCNN2000.pdf">Gers &amp; Schmidhuber (2000)</a>提出，加入了“窥视孔连接(peephole connection)”。也就是说我们让各种门可以观察到元胞状态。</p>
+
+<p><img src="media/14585445702525/14585655553885.jpg" alt="" class="mw_img_center" style="width:600px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<p>上图中，对于所有的门都加入了“窥视孔”，不过也有一些paper中只加一部分。</p>
+
+<p>另一种变种是使用<strong>对偶</strong>的遗忘门和输入门。我们不再是单独地决定需要遗忘什么信息，需要加入什么新信息；而是一起做决定：我们只会在需要在某处放入新信息时忘记该处的旧值；我们只会在已经忘记旧值的位置放入新值。</p>
+
+<p><img src="media/14585445702525/14585661398239.jpg" alt="" class="mw_img_center" style="width:600px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<p>另一个变化更大一些的LSTM变种叫做Gated Recurrent Unit，或者GRU，由<a href="http://arxiv.org/pdf/1406.1078v3.pdf">Cho, et al. (2014)</a>提出。GRU将遗忘门和输入门合并成为单一的“更新门(Update Gate)”。GRU同时也将元胞状态(Cell State)和隐状态(Hidden State)合并，同时引入其他的一些变化。该模型比标准的LSTM模型更加简化，同时现在也变得越来越流行。</p>
+
+<p><img src="media/14585445702525/14585667357562.png" alt="" class="mw_img_center" style="width:600px;display: block; clear:both; margin: 0 auto;"/></p>
+
+<p>另外还有很多其他的模型，比如<a href="http://arxiv.org/pdf/1508.03790v2.pdf">Yao, et al. (2015)</a>提出的Depth Gated RNNs。同时，还有很多完全不同的解决长期依赖问题的方法，比如<a href="http://arxiv.org/pdf/1402.3511v1.pdf">Koutnik, et al. (2014)</a>提出的Clockwork RNNs。</p>
+
+<p>不同的模型中哪个最好？这其中的不同真的有关系吗？<a href="http://arxiv.org/pdf/1503.04069.pdf">Greff, et al. (2015)</a>对流行的变种做了一个比较，发现它们基本相同。<a href="http://jmlr.org/proceedings/papers/v37/jozefowicz15.pdf">Jozefowicz, et al. (2015)</a>测试了一万多种RNN结构，发现其中的一些在特定的任务上效果比LSTM要好。</p>
+
+<h2 id="toc_6">结论</h2>
+
+<p>前文中，我提到了人们使用RNN所取得的出色的成就。本质上，几乎所有的成就都是由LSTM取得的。对于大部分的任务，LSTM表现得非常好。</p>
+
+<p>由于LSTM写在纸上是一堆公式，因此看起来很吓人。希望本文的分步讲解能让读者更容易接受和理解。</p>
+
+<p>LSTM使得我们在使用RNN能完成的任务上迈进了一大步。很自然，我们会思考，还会有下一个一大步吗？研究工作者们的共同观点是：“是的！还有一个下一步，那就是注意力(Attention)！”注意力机制的思想是，在每一步中，都让RNN从一个更大的信息集合中去选择信息。举个例子，假如你使用RNN来生成一幅图片的说明文字，RNN可能在输出每一个单词时，都会去观察图片的一部分。事实上，<a href="http://arxiv.org/pdf/1502.03044v2.pdf">Xu, et al.(2015)</a>做的正是这个工作！如果你想探索注意力机制的话，这会是一个很有趣的起始点。现在已经有很多使用注意力的令人兴奋的成果，而且似乎更多的成果马上将会出来……</p>
+
+<p>注意力并不是RNN研究中唯一让人兴奋的主题。举例说，由<a href="http://arxiv.org/pdf/1507.01526v1.pdf">Kalchbrenner, et al. (2015)</a>提出的Grid LSTM似乎极有前途。在生成式模型中使用RNN的工作——比如<a href="http://arxiv.org/pdf/1502.04623.pdf">Gregor, et al. (2015)</a>、<a href="http://arxiv.org/pdf/1506.02216v3.pdf">Chung, et al. (2015)</a>以及<a href="http://arxiv.org/pdf/1411.7610v3.pdf">Bayer &amp; Osendorfer (2015)</a>——看起来也非常有意思。最近的几年对于RNN来说是一段非常令人激动的时间，接下来的几年也必将更加使人振奋！</p>
+
+<h2 id="toc_7">致谢</h2>
+
+<p>我非常感谢大家帮助我更好的理解LSTM，给可视化提建议，以及提供这篇文章的反馈。</p>
+
+<p>我非常感谢我的Google的同事们，他们提了很有帮助的建议。特别是<a href="http://research.google.com/pubs/OriolVinyals.html">Oriol Vinyals</a>，<a href="http://research.google.com/pubs/GregCorrado.html">Greg Corrado</a>，<a href="http://research.google.com/pubs/JonathonShlens.html">Jon Shlens</a>，<a href="http://people.cs.umass.edu/%7Eluke/">Luke Vilnis</a>，以及<a href="http://www.cs.toronto.edu/%7Eilya/">Ilya Sutskever</a>。我也非常感谢许多其他的朋友和同事们拿出时间来帮助我，包括<a href="https://www.linkedin.com/pub/dario-amodei/4/493/393">Dario Amodei</a>和<a href="http://cs.stanford.edu/%7Ejsteinhardt/">Jacob Steinhardt</a>。特别要感谢<a href="http://www.kyunghyuncho.me/">Kyunghyun Cho</a>对我的图表提出的深思熟虑的建议。</p>
+
+<p>在写这篇文章之前，我在我所授课的两学期关于神经网络的课程上练习讲授了LSTM。感谢所有的参与者对我的耐心以及反馈。</p>
+
+<h6 id="toc_8">注：本文翻译自<a href="http://colah.github.io/">colah&rsquo;s blog</a>，原文链接：<a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/">http://colah.github.io/posts/2015-08-Understanding-LSTMs/</a>。</h6>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Count of Smaller Numbers After Self]]></title>
+    <link href="https://www.yunaitong.cn/count-of-smaller-numbers-after-self.html"/>
+    <updated>2016-02-14T18:11:56+08:00</updated>
+    <id>https://www.yunaitong.cn/count-of-smaller-numbers-after-self.html</id>
+    <content type="html"><![CDATA[
+<h2 id="toc_0">算法描述</h2>
+
+<p>You are given an integer array <em>nums</em> and you have to return a new <em>counts</em> array. The <em>counts</em> array has the property where <code>counts[i]</code> is the number of smaller elements to the right of <code>nums[i]</code>.</p>
+
+<p>Example:</p>
+
+<blockquote>
+<p>Given nums = [5, 2, 6, 1]<br/>
+To the right of 5 there are 2 smaller elements (2 and 1).<br/>
+To the right of 2 there is only 1 smaller element (1).<br/>
+To the right of 6 there is 1 smaller element (1).<br/>
+To the right of 1 there is 0 smaller element.</p>
+</blockquote>
+
+<p>Return the array <code>[2, 1, 1, 0]</code>.</p>
+
+<span id="more"></span><!-- more -->
+
+<h2 id="toc_1">题目大意</h2>
+
+<p>给定一个数组<em>nums</em>，要求返回一个数组<em>counts</em>，其中<em>counts</em>数组中的第<code>i</code>个元素是在<em>nums</em>数组中位于<code>nums[i]</code>的右边且比<code>nums[i]</code>小的元素的个数。</p>
+
+<h2 id="toc_2">解题思路</h2>
+
+<p>题目要求是计算位于数组元素右端且小于该数组元素的元素数目，因此最直观的想法是从右到左遍历数组，同时维护一个辅助数组，辅助数组下标从小到大分别代表排序后的<code>nums</code>中的元素。我们用辅助数组来记录已经遇到过的元素的出现次数。这样求小于该数组元素的元素数目只需要对辅助数组求前缀和即可。由于普通数组求前缀和时间复杂度为<code>O(n)</code>，因此我们可以考虑使用树状数组来作为辅助数组，这样可以降低时间复杂度到<code>O(log n)</code>。关于树状数组的介绍，可以参考<a href="fenwick-tree.html">Fenwick Tree</a>。</p>
+
+<p>另一种思路，我们可以用二分查找树（Binary Search Tree），树的每一个结点带有一个count值，表示该结点元素出现次数。我们在从右至左遍历<code>nums</code>数组时，同时更新<code>BST</code>树，<code>counts</code>的值可以由搜索路径所经过的结点的<code>counts</code>值之和得到。</p>
+
+<h3 id="toc_3">解法I：Fenwick Tree</h3>
+
+<pre><code class="language-python">class Solution(object):
+    def countSmaller(self, nums):
+        &quot;&quot;&quot;
+        :type nums: List[int]
+        :rtype: List[int]
+        &quot;&quot;&quot;
+        result = [0] * len(nums)
+        order = {}
+        for i, num in enumerate(sorted(set(nums))):
+            order[num] = i + 1
+
+        tree = FenwickTree(len(nums))
+        for i in xrange(len(nums) - 1, -1, -1):
+            result[i] = tree.sum(order[nums[i]] - 1)
+            tree.add(order[nums[i]], 1)
+        return result
+
+
+class FenwickTree(object):
+    def __init__(self, n):
+        self.sum_array = [0] * (n + 1)
+        self.n = n
+
+    def lowbit(self, x):
+        return x &amp; -x
+
+    def add(self, x, val):
+        while x &lt;= self.n:
+            self.sum_array[x] += val
+            x += self.lowbit(x)
+
+    def sum(self, x):
+        ret = 0
+        while x &gt; 0:
+            ret += self.sum_array[x]
+            x -= self.lowbit(x)
+        return ret
+</code></pre>
+
+<h3 id="toc_4">解法II：Binary Search Tree</h3>
+
+<pre><code class="language-Python">class Solution(object):
+    def __init__(self):
+        self.root = None
+
+    def countSmaller(self, nums):
+        &quot;&quot;&quot;
+        :type nums: List[int]
+        :rtype: List[int]
+        &quot;&quot;&quot;
+        counts = [0] * len(nums)
+        for i in range(len(nums) - 1, -1, -1):
+            counts[i] = self.traverse(nums[i])
+        return counts
+
+    def traverse(self, val):
+        if not self.root:
+            self.root = Node(val)
+            return 0
+        count = 0
+        p = self.root
+        while p:
+            if val &lt; p.val:
+                p.small_cnt += 1
+                if not p.left:
+                    p.left = Node(val)
+                    break
+                p = p.left
+            elif val &gt; p.val:
+                count += p.small_cnt + p.count
+                if not p.right:
+                    p.right = Node(val)
+                    break
+                p = p.right
+            else:
+                count += p.small_cnt
+                p.count += 1
+                break
+        return count
+
+
+class Node(object):
+    def __init__(self, val):
+        self.small_cnt = 0
+        self.count = 1
+        self.val = val
+        self.left = None
+        self.right = None
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Fenwick Tree]]></title>
+    <link href="https://www.yunaitong.cn/fenwick-tree.html"/>
+    <updated>2016-02-14T23:28:59+08:00</updated>
+    <id>https://www.yunaitong.cn/fenwick-tree.html</id>
+    <content type="html"><![CDATA[
+<h2 id="toc_0">简介</h2>
+
+<p>Fenwick Tree 又叫二分索引树（Binary Index Tree），是一种树状结构的数组。该数据结构是由 Peter M. Fenwick 在1994年首次提出来的。最初，Fenwick Tree 被设计用于数据压缩，而现今，该数据结构主要用来存储频次信息或者用于计算累计频次表等。</p>
+
+<p>对于普通的数组，更新数组中的某一元素需要<code>O(1)</code>的时间，计算数组的第<code>n</code>项前缀和（即前<code>n</code>项和）需要<code>O(n)</code>的时间。而 Fenwick Tree 可以在<code>O(log n)</code>的时间内更新结点元素，在<code>O(log n)</code>的时间内计算前缀和。</p>
+
+<span id="more"></span><!-- more -->
+
+<h2 id="toc_1">结构</h2>
+
+<p>要介绍 Fenwick Tree 的结构，我们首先来介绍一个函数<code>lowbit(x)</code>。<code>lowbit(x)</code>函数返回<code>x</code>的二进制表示最右位<code>1</code>所代表的值。例如，<code>1232</code>的二进制为<code>0100 1101 0000</code>，其最右位<code>1</code>所代表的值为二进制<code>10000</code>即\(2^4=16\)，那么<code>lowbit(1232)=16</code>。</p>
+
+<p>在计算机中，<code>lowbit(x)</code>计算方式如下：</p>
+
+<pre><code class="language-c++">int lowbit(int x) {
+    return x &amp; -x;
+}
+</code></pre>
+
+<p>我们来看一下 Fenwick Tree 的结构：横坐标是<code>x</code>，代表数组的下标；纵坐标是<code>lowbit(x)</code>。</p>
+
+<p><img src="media/14554637395089/fenwick_tree_binary_index_tree.jpg" alt="fenwick_tree_binary_index_tree"/></p>
+
+<p>在上图中，<strong>长条</strong>代表树状数组中的每一个结点的求和范围，<code>x</code>对应长条的长度为<code>lowbit(x)</code>，也就是说，下标<code>x</code>的树状数组结点表示范围为<code>[x - lowbit(x) + 1, x]</code>的原数组之和。</p>
+
+<p>我们用<code>arr</code>表示一个普通数组，用<code>tree</code>表示与之对应的树状数组，则有</p>
+
+<p>\[\texttt{tree[x]}=\sum_{i=x-lowbit(x)+1}^{x} \texttt{arr[i]}\]</p>
+
+<p>由图可以看出，对于节点<code>x</code>：</p>
+
+<ul>
+<li>其左上相邻结点为<code>x - lowbit(x)</code></li>
+<li>其右上相邻结点为<code>x + lowbit(x)</code></li>
+</ul>
+
+<h2 id="toc_2">操作</h2>
+
+<h3 id="toc_3">求前<code>x</code>项和</h3>
+
+<p>若要计算前<code>x</code>项和，则从<code>x</code>向左走，边走边往上爬，则经过的所有长条不重复不遗漏地包括了所有需要累加的元素。</p>
+
+<p>实现代码如下：</p>
+
+<pre><code class="language-C++">int sum(int x) {
+    int ans = 0;
+    while(x &gt; 0) {
+        ans += tree[x];
+        x -= lowbit(x);
+    }
+    return ans;
+}
+</code></pre>
+
+<h3 id="toc_4">更新第<code>x</code>项</h3>
+
+<p>若要更新第<code>x</code>项，则从<code>x</code>向右走，边走边往上爬，沿途修改所有经过的结点即可。</p>
+
+<p>实现代码如下：</p>
+
+<pre><code class="language-C++">void add(int x, int val) {
+    while(x &lt;= N) {
+        tree[x] += val;
+        x += lowbit(x);
+    }
+}
+</code></pre>
+
+<h3 id="toc_5">获取第<code>x</code>项的值</h3>
+
+<p>要获得第<code>x</code>项的值，可以直接用<code>sum(x) - sum(x - 1)</code>来计算。考虑到<code>sum(x)</code>和<code>sum(x - 1)</code>在计算过程中有相同的部分，相减会被抵消。因此，我们只需要计算<code>sum(x)</code>和<code>sum(x - 1)</code>不同部分之差即可。</p>
+
+<p>实现代码如下：</p>
+
+<pre><code class="language-C++">int get(int x) {
+    int ans = tree[x];
+    if (x &gt; 0) {
+        int z = x - lowbit(x);
+        x--;
+        while(x != z) {
+            sum -= tree[x];
+            x -= lowbit(x);
+        }
+    }
+    return ans;
+}
+</code></pre>
+
+<h2 id="toc_6">Python 实现代码</h2>
+
+<pre><code class="language-python">class FenwickTree(object):
+    def __init__(self, n):
+        self.sum_array = [0] * (n + 1)
+        self.n = n
+
+    def lowbit(self, x):
+        return x &amp; -x
+
+    def add(self, x, val):
+        while x &lt;= self.n:
+            self.sum_array[x] += val
+            x += self.lowbit(x)
+
+    def sum(self, x):
+        ans = 0
+        while x &gt; 0:
+            ans += self.sum_array[x]
+            x -= self.lowbit(x)
+        return ans
+
+    def get(self, x):
+        ans = self.sum_array[x]
+        if x &gt; 0:
+            z = x - self.lowbit(x)
+            x -= 1
+            while x != z:
+                ans -= self.sum_array[x]
+                x -= self.lowbit(x)
+        return ans
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[在OpenWRT中配置isatap以及IPv6 NAT的方法]]></title>
+    <link href="https://www.yunaitong.cn/openwrt-isatap-and-ipv6-nat.html"/>
+    <updated>2016-02-14T18:08:28+08:00</updated>
+    <id>https://www.yunaitong.cn/openwrt-isatap-and-ipv6-nat.html</id>
+    <content type="html"><![CDATA[
+<p>在紫荆公寓这边，由于原生<code>IPv6</code>需要认证才能使用，十分不方便。而使用<code>isatap</code>隧道的方法访问<code>IPv6</code>则十分的稳定。但是由于<code>isatap</code>隧道只能够得到一个<code>Global</code>的<code>IPv6</code>的地址，因此需要在路由器上启用<code>IPv6 NAT</code>才能够使得路由器后面的设备无缝访问<code>IPv6</code>资源。之前的路由器，在配置好之后稳定地运行了一年有余，前几日因为一些需求，需要重新配置路由器，因此将配置的过程记录下来，供今后参考。</p>
+
+<span id="more"></span><!-- more -->
+
+<h2 id="toc_0">网络情况</h2>
+
+<ul>
+<li>软件版本: OpenWRT Barrier Breaker 14.07</li>
+<li>WAN: 通过isatap接入到IPv6</li>
+<li>LAN: 通过radvd广播得到IPv6地址，使用ip6tables的NAT转发功能访问外网</li>
+</ul>
+
+<h2 id="toc_1">配置</h2>
+
+<ul>
+<li>安装软件包</li>
+</ul>
+
+<p>用到的软件包有<code>6in4</code> <code>kmod-ipt-nat6</code> <code>luci-proto-ipv6</code> <code>luci-app-radvd</code>，最后两个是跟<code>luci</code>相关的，不用界面的可以忽略。</p>
+
+<ul>
+<li>禁用自带的IPv6管理</li>
+</ul>
+
+<p>在<code>/etc/config/network</code>中，将<code>config globals &#39;globals&#39;</code>部分删掉，将<code>config interface &#39;lan&#39;</code>中的<code>ip6assign</code>和<code>ip6addr</code>删掉，在<code>lan</code>，<code>wan</code>和<code>wan6</code>中分别加上<code>option delegate 0</code>，表示不使用内置的<code>IPv6</code>配置。</p>
+
+<ul>
+<li>配置<code>isatap</code>隧道</li>
+</ul>
+
+<p>将<code>config interface &#39;wan6&#39;</code>中的原来的内容删掉，替换如下内容：</p>
+
+<pre><code>config interface &#39;wan6&#39;            
+        option proto &#39;6in4&#39;           
+        option ipaddr &#39;59.66.210.47&#39;         
+        option peeraddr &#39;166.111.21.1&#39;
+        option ip6addr &#39;2402:f000:1:1501:200:5efe:59.66.210.47/64&#39;
+        option ip6prefix &#39;fc00:512b:512b::/64&#39;                    
+        option delegate &#39;0&#39;
+</code></pre>
+
+<p>其中<code>ipaddr</code>是路由器的<code>ipv4</code>地址，<code>peeraddr</code>是<code>isatap</code>隧道服务器的地址，<code>ip6addr</code>是路由器的<code>ipv6</code>公网地址。这里要注意的是，一定要加上<code>ip6prefix</code>这一项，该项填写的是给路由器下游分配的<code>ipv6</code>地址的前缀，如果不填写这一项的话，可能会出现在路由器中能够<code>ping</code>通外部<code>ipv6</code>地址，但是在下游的网络设备中却<code>ping</code>不通的问题。</p>
+
+<ul>
+<li>配置<code>LAN</code></li>
+</ul>
+
+<p>我们需要给<code>LAN</code>一个<code>ipv6</code>地址，在<code>config interface &#39;lan&#39;</code>中，加入一行<code>option ip6addr &#39;fc00:512b:512b::1/64&#39;</code>。要注意该<code>ipv6</code>地址的前缀一定要和前面配置<code>isatap</code>中填写的一致。</p>
+
+<ul>
+<li>配置<code>radvd</code></li>
+</ul>
+
+<p>在<code>/etc/config/radvd</code>中，使用下面的配置</p>
+
+<pre><code>config interface                                                                
+        option interface &#39;lan&#39;                                                  
+        option AdvSendAdvert &#39;1&#39;                                                
+        list client &#39;&#39;                                                          
+        option ignore &#39;0&#39;                                                       
+        option IgnoreIfMissing &#39;1&#39;                                              
+        option AdvSourceLLAddress &#39;1&#39;                                           
+        option AdvDefaultPreference &#39;high&#39;                                      
+        option MinRtrAdvInterval &#39;5&#39;                                            
+        option MaxRtrAdvInterval &#39;10&#39;                                           
+                                                                                
+config prefix                                                                   
+        option interface &#39;lan&#39;                                                  
+        option AdvOnLink &#39;1&#39;                                                    
+        option AdvAutonomous &#39;1&#39;                                                
+        option ignore &#39;0&#39;                                                       
+        list prefix &#39;fc00:512b:512b::/64&#39;                                       
+        option AdvRouterAddr &#39;1&#39;                                                
+                                                                                
+config route                                                                    
+        option interface &#39;lan&#39;                                                  
+        list prefix &#39;&#39;                                                          
+        option ignore &#39;1&#39;                                                       
+                                                                                
+config rdnss                                                                    
+        option interface &#39;lan&#39;                                                  
+        list addr &#39;&#39;                                                            
+        option ignore &#39;1&#39;                                                       
+                                                                                
+config dnssl                                                                    
+        option interface &#39;lan&#39;                                                  
+        list suffix &#39;&#39;                                                          
+        option ignore &#39;1&#39;
+</code></pre>
+
+<p>配置<code>radvd</code>开机启动</p>
+
+<pre><code class="language-bash">/etc/init.d/radvd enable
+</code></pre>
+
+<ul>
+<li>设置<code>NAT</code>转发</li>
+</ul>
+
+<p>在<code>/etc/firewall.user</code>中，最后加上一句<code>ip6tables -t nat -I POSTROUTING -s fc00:512b:512b::/64 -j MASQUERADE</code></p>
+
+<ul>
+<li>重启网络服务，启动<code>radvd</code></li>
+</ul>
+
+<pre><code class="language-bash">/etc/init.d/network restart
+/etc/init.d/radvd start
+</code></pre>
+
+<p>如果正常的话，内网就可以获得<code>ipv6</code>地址，并且能够正常访问<code>ipv6</code>网络了 。</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Filco Minilar Air 机械键盘]]></title>
+    <link href="https://www.yunaitong.cn/new-mechanical-keyboard.html"/>
+    <updated>2016-02-14T18:02:56+08:00</updated>
+    <id>https://www.yunaitong.cn/new-mechanical-keyboard.html</id>
+    <content type="html"><![CDATA[
+<p>之前一直觉得自己不是一个器材党，因此，当室友换上了机械键盘的时候，我依然无动于衷。键盘只要够用就好了嘛。之前因为外接显示器的缘故，也给我的 rMBP 配过 Wireless Keyboard，不过在我的外接显示器出掉之后，Wireless Keyboard 就被我收在抽屉里落灰了。因为感觉其手感，跟 rMBP 的内置键盘也差不了多少，既然如此，我何必又要多带一个键盘呢？直接用内置的不就好了嘛。</p>
+
+<span id="more"></span><!-- more -->
+
+<p>直到最近，因为在学习 iOS 编程的缘故，因此敲打键盘的次数显著增多了。这才意识到一把趁手的键盘的重要性。（话外音：你真的搞计算机的吗？）rMBP 自带的键盘，键程短，而且按起来比较用力，用的时间长了，感觉手指就容易疲惫。室友用的是一把青轴键盘，敲起来啪啪响，而且我也试过，手感果然好得不一般。不过考虑到我长期打字的需要，而且觉得青轴实在是有些太吵，再加上知乎大神的推荐，最终，我决定入手红轴键盘了。红轴不似青轴那般有层次感，也没有那么清脆的声音，但是按起来很舒服，而且非常容易触发，比较适合我的偏好。其实手感这种东西，别人说什么都不算，自己觉得满意的，才是最好的。</p>
+
+<p>经过一段时间的研究决定，最终入手了 Filco 家的 Minilar Air 蓝牙机械键盘。因为我之前也没怎么研究过，所以对这个品牌也不是很了解，只是看到有很多的人推荐，所以最终就选择了这个牌子。其实蓝牙对于我倒是无所谓的，因为我可能大部分的时间都会将其摆在桌子上面用，而桌子上已经有一个带有 USB 扩展口的千兆网卡，所以占用 USB 口这一条可以不用考虑。只是我在淘宝上，没有找到合适的红轴有线版，所以最终就入了蓝牙的版本。而且蓝牙版本还可以跟 iOS 设备进行配对使用，最多可以识别 3 个蓝牙设备。这也算是额外的 bonus 吧。</p>
+
+<p>废话了一堆，下面是开箱照。</p>
+
+<p><img src="media/14554441761459/IMG_0005.jpg" alt="IMG_0005"/></p>
+
+<p>卖家包装的很细心，外面用带气泡的塑料纸缠了好几层，我好不容易用小刀给切开了，露出了盒子。红色的键盘轮廓应该表示是红轴吧。</p>
+
+<p><img src="media/14554441761459/IMG_0006.jpg" alt="IMG_0006"/></p>
+
+<p>盒子打开后，里面很简洁。最上面是一纸说明书，将说明书拿开之后，便如上图所示了。键盘的上方覆盖了一个水晶防尘盖，另外还随机附送了两节干电池。据说这个键盘挺省电的，两节五号电池能够用半年。至于具体如何，待我自己尝试后放才能够知晓吧。另外在上方用作支撑的纸下面，随机附送了拔键器以及5个键帽，可以配合键盘后面的开关，实现一些键功能的置换。比如交换 Ctrl 和 Caps Lock，交换退格键和反斜杠键，改变 Esc 键的功能等等。</p>
+
+<p><img src="media/14554441761459/IMG_0007.jpg" alt="IMG_0007"/></p>
+
+<p>键盘右上方有两枚指示灯，这也是该键盘上面仅有的两枚指示灯。左边一枚在配对时会亮起，配对成功后便会熄灭；右边一枚是低电量指示灯，在电量过低的时候会亮起。另外关于配对，可以戳键盘背面的一个凹进去的配对按钮来实现配对，或者是同时按住 Ctrl + Alt + Fn 键当配对指示灯亮起后进行配对。关于空格键右边部分的 App 键，在 Windows 系统下，应该是相当于是右键菜单的功能，在 Mac 下具体有什么功能，我还不是很清楚。</p>
+
+<p><img src="media/14554441761459/IMG_0008.jpg" alt="IMG_0008"/></p>
+
+<p>据说发开箱图时，这个角度是一定要照的，Filco 的标志，一看就觉得逼格满满的啊。</p>
+
+<p><img src="media/14554441761459/IMG_0009.jpg" alt="IMG_0009"/></p>
+
+<p>因为是 67 键的小键盘，所以许多的功能键是通过配合 Fn 来进行激活的。这款键盘很贴心的在空格键的两侧配备了两个 Fn 键，这样就使得功能键的激活变得十分方便。但是这样造成的一个坏处就是，空格键变得特别的短。像我这种以前经常按空格边缘的人，一开始就会有些不适应，经常就会按到边上的 Fn 键去了。不过设计者考虑到了这个问题，左右两边的 Fn 键都是可以通过键盘后面的跳线开关设置成为空格键来使用的。另外可以注意到的是，键盘的 Win 键和 Alt 键的侧边，还分别用空心字体刻着 Cmd 和 Opition，这说明该款键盘是支持 Mac 的。实际上这篇文章就是我在 Mac 上面敲的，另外为了和 Mac 下的键位顺序一致，我使用拔键器调换了 Alt 和 Win 的位置，并且在键盘设置里面交换了这两个键的功能。</p>
+
+<p>不知不觉写了这么多的文字，总体来说，这款键盘敲起字来还是蛮舒服的。就是一些键位的问题，比如说空格键，我还在适应中，不过相信适应之后，就会很自然了。对于想要体会打字快感的朋友们，这款键盘绝对是不会让你失望的。</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[最水木发布了]]></title>
+    <link href="https://www.yunaitong.cn/zsmth-released.html"/>
+    <updated>2016-02-14T17:59:00+08:00</updated>
+    <id>https://www.yunaitong.cn/zsmth-released.html</id>
+    <content type="html"><![CDATA[
+<p>最水木 (iZSM) 是专门为 iOS 用户开发的一款水木社区的非官方客户端。该客户端充分利用 iOS 的新特性，给您带来最完美的水木社区使用体验。不管您是资深潜水员，还是水木水车，最水木是您在 iOS 设备上访问水木社区的绝佳的选择！</p>
+
+<span id="more"></span><!-- more -->
+
+<p>主要功能：</p>
+
+<ul>
+<li>浏览全站十大，分区十大</li>
+<li>浏览版面、文章、信箱</li>
+<li>搜索版面、搜索文章</li>
+<li>发表、回复、转发主题，发表、回复、转发邮件</li>
+<li>新邮件、回复以及@功能的提醒</li>
+<li>其他功能以及细节等待您的发掘</li>
+</ul>
+
+<p>下载地址：<a href="https://itunes.apple.com/us/app/zui-shui-mu-shui-mu-she-qu/id979484184?mt=8">点此下载</a></p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[OS X下在NAT后连接清华IPv6的脚本]]></title>
+    <link href="https://www.yunaitong.cn/configure-ipv6-behind-nat-on-os-x.html"/>
+    <updated>2016-02-14T17:56:08+08:00</updated>
+    <id>https://www.yunaitong.cn/configure-ipv6-behind-nat-on-os-x.html</id>
+    <content type="html"><![CDATA[
+<p>由于IPv6是不支持NAT的，因此，默认情况下，宿舍里装上路由器后，就没法再使用学校提供的IPv6服务了。不过难道真的没有办法了么？答案是否定的。将下面的脚本保存后，并执行，就可以在NAT后利用isatap隧道来使用IPv6啦~脚本中的隧道服务器是清华的。</p>
+
+<span id="more"></span><!-- more -->
+
+<pre><code class="language-bash">#!/bin/bash
+LAN_IP=`/sbin/ifconfig en0 | grep inet | grep -v inet6 | awk &#39;{print $2}&#39;`
+
+myip() {
+    echo &gt;&amp;2 &quot;Getting your public IPv4 address&quot;
+    if type wget &gt;/dev/null 2&gt;/dev/null; then
+        wget -qO- &#39;http://ipv4.icanhazip.com&#39;
+    elif type curl &gt;/dev/null 2&gt;/dev/null; then
+        curl &#39;http://ipv4.icanhazip.com&#39;
+    else
+        echo &gt;&amp;2 &quot;Neither of wget and curl found. Install one of them. Abort.&quot;
+        exit 1
+    fi
+}
+
+WAN_IP=`myip`
+
+/sbin/ifconfig gif0 destroy
+/sbin/ifconfig gif0 create inet6 2001:da8:200:900e:0:5efe:$WAN_IP prefixlen 64
+/sbin/ifconfig gif0 tunnel $LAN_IP 59.66.4.50
+/sbin/route delete -inet6 default
+/sbin/route add -inet6 default 2001:da8:200:900e::1
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Buffalo wzr-hp-g300nh路由器折腾小记]]></title>
+    <link href="https://www.yunaitong.cn/configure-buffalo-wzr-hp-g300nh.html"/>
+    <updated>2016-02-14T17:41:49+08:00</updated>
+    <id>https://www.yunaitong.cn/configure-buffalo-wzr-hp-g300nh.html</id>
+    <content type="html"><![CDATA[
+<p>之前该路由器一直用的是Open-WRT的固件，但是时间长了之后，总是会遇到莫名其妙的Wifi掉线问题，VPN崩掉的问题，可能是因为一直使用开发版的固件的缘故吧。但是稳定版的Backfire固件似乎有问题，我每刷必成砖，每次都要ttl进行修复。好了闲话少提，这次主要记录的是将该路由器刷成Buffalo官方提供的Professional版本的固件，并且配置使用的过程。</p>
+
+<span id="more"></span><!-- more -->
+
+<h2 id="toc_0">一、刷机</h2>
+
+<p>首先到<a href="http://www.buffalotech.com/support-and-downloads/downloads">这里</a>下载官方的DD-WRT固件。由于之前路由器已经刷了Open-WRT，而官方的固件是有加密的，因此不能使用</p>
+
+<pre><code class="language-bash">mtd -r write firmware.bin firmware
+</code></pre>
+
+<p>这样的方式直接将下载的固件刷入路由器。参考<a href="http://www.dd-wrt.com/wiki/index.php/Buffalo_WZR-HP-G300NH">Wiki</a>的做法是采用TFTP的方式。</p>
+
+<p>该路由器的UBOOT Bootloader在刚启动时，有4s的时间接受TFTP方式上传固件。在这段时间里面，路由器不可<code>ping</code>也没有<code>arp</code>广播，但是其IP固定为<code>192.168.11.1</code>，arp固定为<code>02-AA-BB-CC-DD-1A</code>。刷机方式如下：</p>
+
+<ul>
+<li>将路由器的电源拔掉，将四个LAN口中最靠近WAN口的一个连接到计算机的网口上。</li>
+<li>将计算机的IP地址设置为<code>192.168.11.2</code>，子网掩码为<code>255.255.255.0</code>。</li>
+<li>设置固定arp，如在OS X下为：</li>
+</ul>
+
+<pre><code class="language-bash">sudo arp -s 192.168.11.1 02:aa:bb:cc:dd:1a ifscope en0
+</code></pre>
+
+<ul>
+<li>在终端下，输入</li>
+</ul>
+
+<pre><code class="language-bash">tftp 192.168.11.1
+tftp&gt; verbose
+tftp&gt; binary
+tftp&gt; trace
+tftp&gt; rexmt 1
+tftp&gt; timeout 60
+tftp&gt; put wzrg300nh-firmware.enc
+</code></pre>
+
+<ul>
+<li>输入到最后一句的时候，先不要按下Return，路由器加电，观察交换机的灯，等灯亮后约2秒钟，按下Return键，将固件上传到路由器。这个时间不太好把握，可能需要多实验几次。另外，最好在路由器和电脑之间加一个小交换机，这样计算机不会频繁的进行网卡通断的切换，成功的概率大一些。</li>
+<li>等固件上传完毕后，路由器的红灯会闪，表示正在刷机，完成后会自动重新启动。</li>
+</ul>
+
+<h2 id="toc_1">二、配置PPTP VPN客户端</h2>
+
+<p>校园网对于出校访问有流量限制，需要帐号登录出校才能正常使用。为了实现免登录，也为了节省流量，采取路由器上通过pptp client连接某校内VPN，然后出校流量走VPN的方式。</p>
+
+<p>在ddwrt的web设置界面，选择“服务”-&gt;“VPN”-&gt;“PPTP客户端”</p>
+
+<p><img src="media/14554429092352/QQ20121207-1.png" alt="QQ20121207-1"/></p>
+
+<p>首先启用PPTP客户端，填入服务器的IP，远程子网与远程子网掩码可以通过先在电脑上登录一下VPN来获得。<br/>
+MPPE的选项，根据实际情况来填写，如果没有的话，就写<code>nomppe</code>，如果有的话，填写<code>mppe required</code>。如果连接的是windows VPN服务器，可能需要填写<code>mppe required,no40,no56,stateless</code>或者是<code>mppe required,no40,no56,stateful</code>。<br/>
+保存并且应用之后重启路由，ssh到路由器上就会发现多了一个ppp0的interface。然后需要将默认的网关设置为VPN。</p>
+
+<ul>
+<li>首先需要启用jffs分区，因为dd-wrt的分区是不可写的，只有启用了jffs分区，才可以将自己的脚本保存在上面。</li>
+<li>ssh登录路由器，使用<code>rc_startup</code>来启动一个控制启动脚本，该脚本在系统启动时候自动执行，功能是将<code>/jffs/etc/config/</code>目录下所有后缀名为<code>.startup</code>的脚本都执行一遍。因此将来如果还有需要开机启动的脚本，直接放入<code>/jffs/etc/config</code>中并且以<code>.startup</code>为后缀名即可。</li>
+</ul>
+
+<pre><code class="language-bash">nvram set rc_startup=&quot;sh /jffs/etc/config/my_startup.sh&quot;
+nvram commit
+</code></pre>
+
+<ul>
+<li>确保目录存在</li>
+</ul>
+
+<pre><code class="language-bash">mkdir -p /jffs/etc/config
+</code></pre>
+
+<ul>
+<li>创建<code>my_startup.sh</code>启动脚本：</li>
+</ul>
+
+<pre><code class="language-bash">vi /jffs/etc/config/my_startup.sh
+</code></pre>
+
+<ul>
+<li>输入下面的内容</li>
+</ul>
+
+<pre><code class="language-bash">#!/bin/sh
+for I in `/bin/ls /jffs/etc/config/*.startup`
+do
+    sh $I&amp;
+done
+</code></pre>
+
+<ul>
+<li>调整权限</li>
+</ul>
+
+<pre><code class="language-bash">chmod 700 /jffs/etc/config/my_startup.sh
+</code></pre>
+
+<ul>
+<li>然后创建VPN的脚本</li>
+</ul>
+
+<pre><code class="language-bash">vi /jffs/etc/config/vpn.startup
+</code></pre>
+
+<ul>
+<li>输入如下内容</li>
+</ul>
+
+<pre><code class="language-bash">#!/bin/sh
+sleep 90
+OLDGW=$(nvram get wan_gateway)
+VPNSRV=$(nvram get pptpd_client_srvip)
+PPTPDEV=ppp0
+VPNGW=$(ifconfig $PPTPDEV | grep -Eo &quot;P-t-P:([0-9.]+)&quot; | cut -d: -f2)
+route add -host $VPNSRV gw $OLDGW
+route del default gw $OLDGW
+route add default gw $VPNGW
+</code></pre>
+
+<ul>
+<li>调整权限</li>
+</ul>
+
+<pre><code class="language-bash">chmod 700 /jffs/etc/config/vpn.startup
+</code></pre>
+
+<ul>
+<li>将校内的网段用route命令使之走校园网的网关，此处不再详述。</li>
+<li>重启之后，90s网络稳定后，即可通过VPN走校外的流量。</li>
+</ul>
+
+<h2 id="toc_2">三、配置额外的DNSMasq选项</h2>
+
+<p>由于Apple在中国地区没有服务器，所以App Store的下载速度一直让人诟病。解决方案就是强制指定App Store的服务器为香港或者澳门、台湾的服务器。一般有两种方法：</p>
+
+<ol>
+<li>修改DNS。采用特定的DNS，该DNS对于App Store的访问特别做了优化，可以将App Store的地址解析为你的网络访问最快的地址。优点：操作简单。缺点：所有的解析都是通过修改后的DNS进行，因此对于其他的网络，特别是本地的一些网络（比如笔者所在的教育网）的解析有时候会出错，造成访问网络缓慢。</li>
+<li>修改hosts。将App Store的条目写入hosts中，这样不需要修改dns，即可以达到加速效果。优点：不修改dns，不影响其他网络访问速度。缺点：麻烦，需要手动测试最快的app store地址，而且未越狱的iPhone没法修改hosts。</li>
+</ol>
+
+<p>为了方便路由器子网内设备（一台Macbook Pro，一台iPhone）能够零配置加速App Store的访问，我采取在路由器上附加hosts的方法。这样的话，路由器子网下面所有的设备，都能够不用改配置就可以加速App Store的访问，并且不影响对其他网址的解析。方法如下：</p>
+
+<ul>
+<li>将包含App Store加速的hosts文件通过scp的方式复制到路由器上，关于如何获得该hosts文件，这里不详细展开，感兴趣的同学，可以<a href="http://bbs.weiphone.com/read.php?tid=2397269">参考这里</a>。我们假设将该文件放在了<code>/jffs/etc/hosts</code>。</li>
+<li>在DD-WRT的配置界面，选择“服务”-&gt;“DNSMasq”，在“DNSMasq附加选项”中填入&quot;addn-hosts=/jffs/etc/hosts&quot;（不加引号）保存应用即可。</li>
+</ul>
+
+<p><img src="media/14554429092352/QQ20121207-2.png" alt="QQ20121207-2"/></p>
+
+<h2 id="toc_3">四、Hack IPv6 Isatap</h2>
+
+<p>在<a href="mac-os-x-tsinghua-ipv6-isatap.html">前面的文章</a>中，我提到过，由于学校给紫荆地区的IPv6强行加上了认证，且认证服务器经常崩溃，导致原生IPv6使用十分不便，因此，我采用走ISATAP隧道的方法来绕过认证。但是，学校的隧道给分配的地址是/64的，无法进一步分配，因此，当计算机退到路由器的内网之后，就没法使用ISATAP隧道了。</p>
+
+<p>考虑到局域网内，只有一台主机需要使用IPv6，因此对ISATAP进行了hack，由于ISATAP和6to4协议都是使用41端口，因此，我把来自外网的41端口的数据都转发给我的主机。注意要首先给主机一个固定的IP分配。配置图如下：</p>
+
+<p><img src="media/14554429092352/QQ20121207-3.png" alt="QQ20121207-3"/></p>
+
+<p>然后在计算机上执行下面的脚本，即可。</p>
+
+<pre><code class="language-bash">#!/bin/sh
+LAN_IP=`/sbin/ifconfig en0 | grep inet | grep -v inet6 | awk &#39;{print $2}&#39;`
+WAN_IP=59.66.210.123 # replace with your wan ip
+
+# just for Tsinghua&#39;s ISATAP router
+/sbin/ifconfig gif0 tunnel $LAN_IP 59.66.4.50
+/sbin/ifconfig gif0 inet6 2001:da8:200:900e:0:5efe:$WAN_IP prefixlen 64
+/sbin/ifconfig gif0 up
+/sbin/route delete -inet6 default
+/sbin/route add -inet6 default 2001:da8:200:900e::1
+</code></pre>
+
+<p>注意：将WAN_IP替换为你的WAN IP，该脚本示例为使用清华大学的ISATAP隧道路由器。</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Mac OS X下通过ISATAP连接清华的IPv6的方法]]></title>
+    <link href="https://www.yunaitong.cn/mac-os-x-tsinghua-ipv6-isatap.html"/>
+    <updated>2016-02-14T17:02:43+08:00</updated>
+    <id>https://www.yunaitong.cn/mac-os-x-tsinghua-ipv6-isatap.html</id>
+    <content type="html"><![CDATA[
+<p>紫荆15#这边的网络是v4/v6双栈，可以自动获取到v4和v6的地址，但是鉴于网络中心的某一个项目强行给全校绝大部分ipv6加上了一个前无古人后无来者充分彰显世界一流大学地位巨烂无比经常崩溃的认证系统，<del>并且在可以预见的未来，该认证系统并不会被拿掉，</del>因此我毅然放弃了使用原生的ipv6，而改用没有认证系统的isatap隧道。</p>
+
+<span id="more"></span><!-- more -->
+
+<p>具体操作步骤如下：</p>
+
+<p>1、首先需要获得自己电脑的IP地址，可以使用终端命令查看，也可以在系统偏好设置-网络中查看。在这里，我的IP假设为<strong>59.66.x.y</strong></p>
+
+<p>2、打开终端，依次执行下列命令：</p>
+
+<pre><code class="language-bash">$ sudo ifconfig gif0 tunnel 59.66.x.y 59.66.4.50
+$ sudo ifconfig gif0 inet6 2001:da8:200:900e:0:5efe:59.66.x.y prefixlen 64
+$ sudo route delete -inet6 default
+$ sudo route add -inet6 default 2001:da8:200:900e::1
+</code></pre>
+
+<p>其中<strong>59.66.x.y</strong>为示例IP需要换成你自己的IP。<em>59.66.4.50</em>是网络中心的isatap隧道服务器的地址。配置好之后，可以在终端中<code>ping6 ipv6.google.com</code>，如果能够ping通，那么就请尽情的使用ipv6来爽吧。</p>
+
+<p>3、如果不想每次开机都敲命令的话，可以<code>sudo nano /etc/rc.local</code>将第2步中的三行命令粘贴到这个文件中，然后<code>Ctrl+X</code>，<code>Y</code>保存即可实现开机自动实现启动。</p>
+
+<p>4、该方法不需要下载额外的软件包。在Mountain Lion 10.8.1下测试通过。</p>
+
+<p>下面是一个简单的小脚本文件，可以自动取得有线或者无线的IP，不需要自己敲命令写了。注意：本脚本不适合NAT的情形。</p>
+
+<pre><code class="language-bash">#!/bin/sh 
+EN0_IP=`/sbin/ifconfig en0 | grep inet | grep -v inet6 | awk &#39;{print $2}&#39;` 
+EN1_IP=`/sbin/ifconfig en1 | grep inet | grep -v inet6 | awk &#39;{print $2}&#39;` 
+
+if [ -n &quot;$EN0_IP&quot; ]; then
+    LOCAL_IP=$EN0_IP 
+else
+    LOCAL_IP=$EN1_IP 
+fi 
+
+if [ -n &quot;$LOCAL_IP&quot; ]; then 
+    /sbin/ifconfig gif0 tunnel $LOCAL_IP 59.66.4.50 
+    /sbin/ifconfig gif0 inet6 2001:da8:200:900e:0:5efe:$LOCAL_IP prefixlen 64 
+    /sbin/route delete -inet6 default
+    /sbin/route add -inet6 default 2001:da8:200:900e::1 
+fi
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[给小本换SSD]]></title>
+    <link href="https://www.yunaitong.cn/change-ssd-for-my-netbook.html"/>
+    <updated>2016-02-14T16:55:09+08:00</updated>
+    <id>https://www.yunaitong.cn/change-ssd-for-my-netbook.html</id>
+    <content type="html"><![CDATA[
+<p>自从一年多以前买来这个上网本Samsung N148之后，一直对其抱着复杂的情感，便携性是没的说，平时听听歌，写写代码是没有问题的，可是浏览网页或者是做其他一些操作的话，经常会卡住半天，慢得要死。看来上网本确实是有点鸡肋啊，食之无味，弃之可惜。上网查阅一些资料得知，反应慢的主要瓶颈是在硬盘，因此就萌发了给我的小本换个固态硬盘的念头，也好让它焕发一下第二春，发挥点余热。</p>
+
+<p>在淘宝上买了intel的20GSSD，20G确实有点小，不过对于一个基本不存什么东西的上网本，还是足够用了的。</p>
+
+<span id="more"></span><!-- more -->
+
+<p><img src="media/14554401099575/new-ssd.jpeg" alt="new-ssd"/></p>
+
+<p>这是SSD硬盘</p>
+
+<p><img src="media/14554401099575/original-hdd.jpeg" alt="original-hdd"/></p>
+
+<p>这是拆下来的原来的硬盘</p>
+
+<p><img src="media/14554401099575/open-the-back.jpeg" alt="open-the-back"/></p>
+
+<p>这是小本打开后盖之后的无码高清大图~</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Ubuntu上宋体显示的设置]]></title>
+    <link href="https://www.yunaitong.cn/ubuntu-simsun-display-config.html"/>
+    <updated>2016-02-14T16:40:03+08:00</updated>
+    <id>https://www.yunaitong.cn/ubuntu-simsun-display-config.html</id>
+    <content type="html"><![CDATA[
+<p>默认情况下，Ubuntu上宋体也开了防锯齿，在字体比较小的时候，英文和中文都非常的模糊，看着十分的难受。在这里，提供一个配置文件，只修改宋体的设置，使得宋体的显示变锐利（像Windows下一样）。</p>
+
+<span id="more"></span><!-- more -->
+
+<p>步骤如下：</p>
+
+<ol>
+<li>建立目录<code>/usr/share/fonts/winfonts</code>，从XP中将常用字体到此目录下</li>
+<li>运行<code>sudo fc-cache -fv</code>，字体立即生效</li>
+<li>在<code>/etc/fonts/conf.d</code>下建立宋体配置文件：<code>67-simsun-sharp.conf</code></li>
+</ol>
+
+<p>内容为：</p>
+
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;!DOCTYPE fontconfig SYSTEM &quot;fonts.dtd&quot;&gt;
+&lt;!-- SimSun Configure File --&gt;
+&lt;fontconfig&gt;
+&lt;match target=&quot;font&quot;&gt;
+        &lt;test qual=&quot;any&quot; name=&quot;family&quot;&gt;
+                &lt;string&gt;SimSun&lt;/string&gt;
+                &lt;string&gt;宋体&lt;/string&gt;
+                &lt;string&gt;NSimSun&lt;/string&gt;
+                &lt;string&gt;新宋体&lt;/string&gt;
+        &lt;/test&gt;
+      &lt;test name=&quot;weight&quot; compare=&quot;less_eq&quot; target=&quot;pattern&quot;&gt;
+         &lt;const&gt;medium&lt;/const&gt;
+      &lt;/test&gt;
+        &lt;test compare=&quot;less_eq&quot; name=&quot;pixelsize&quot;&gt;&lt;double&gt;17&lt;/double&gt;&lt;/test&gt;
+        &lt;test compare=&quot;more_eq&quot; name=&quot;pixelsize&quot;&gt;&lt;double&gt;12&lt;/double&gt;&lt;/test&gt;
+        &lt;edit name=&quot;antialias&quot; mode=&quot;assign&quot;&gt;&lt;bool&gt;false&lt;/bool&gt;&lt;/edit&gt;
+        &lt;edit name=&quot;embeddedbitmap&quot; mode=&quot;assign&quot;&gt;&lt;bool&gt;true&lt;/bool&gt;&lt;/edit&gt;
+        &lt;edit name=&quot;hinting&quot; mode=&quot;assign&quot;&gt;&lt;bool&gt;true&lt;/bool&gt;&lt;/edit&gt;
+        &lt;edit name=&quot;hintstyle&quot; mode=&quot;assign&quot;&gt;&lt;const&gt;hintfull&lt;/const&gt;&lt;/edit&gt;
+        &lt;edit name=&quot;autohint&quot; mode=&quot;assign&quot; &gt;&lt;bool&gt;false&lt;/bool&gt;
+        &lt;/edit&gt;
+    &lt;/match&gt;
+&lt;/fontconfig&gt;
+</code></pre>
+
+<p><code>Alt+PrtSc+K</code>重启X-Window生效。</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Linux下登录新版TUNet的bash脚本]]></title>
+    <link href="https://www.yunaitong.cn/tunet-login-script-on-linux.html"/>
+    <updated>2016-02-14T16:32:53+08:00</updated>
+    <id>https://www.yunaitong.cn/tunet-login-script-on-linux.html</id>
+    <content type="html"><![CDATA[
+<p>今晚闲来无事，便写了一个登录新版TUNet的脚本，因为是一边翻书一边写的，所以非常挫，不过应该能用。</p>
+
+<p>写这个最初目的是做嵌入式的大作业的，因为TUNet更新了，所以不能做以前的那个mytunet的交叉编译了。。。</p>
+
+<p>脚本在Openwrt上测试通过。</p>
+
+<p>把脚本中的<code>your_username</code>替换成info的用户名，<code>your_password_md5</code>替换成你的密码的md5，可以用<code>echo -n your_password | md5sum</code>来得到。另外脚本需要<code>curl</code>，Ubuntu用户可以用<code>sudo apt-get install curl</code>来安装。</p>
+
+<span id="more"></span><!-- more -->
+
+<pre><code class="language-bash">#!/bin/sh
+# your info&#39;s username
+uname=your_username
+# your info&#39;s password&#39;s md5sum
+pass=your_password_md5
+####################################################
+do_login() {
+    login_data=&#39;username=&#39;$uname&#39;&amp;password=&#39;$pass&#39;&amp;drop=0&amp;type=1&amp;n=100&#39;
+    check_data=&#39;action=check_online&#39;
+
+    # check whether already online
+    con=`curl -d $check_data -s http://net.tsinghua.edu.cn/cgi-bin/do_login`
+
+    if [ -z $con ]; then
+        # start login
+        res=`curl -d $login_data -s http://net.tsinghua.edu.cn/cgi-bin/do_login`
+
+        #handle result
+        pe=`echo $res | grep error`
+        if [ -z $pe ]; then
+            echo &quot;Login Success!&quot;   
+        else
+            echo $pe
+            exit 0
+        fi
+
+        # display flux infomation
+        flux=`echo $res | awk -F &#39;,&#39; &#39;{print $3}&#39;`
+        a=$(($flux/1000000000))
+        b=$((($flux%1000000000)/100000000))
+        c=$((($flux%100000000)/10000000))
+        echo &quot;Used Flux: &quot;$a&quot;.&quot;$b$c&quot;G.&quot; 
+
+    else
+        echo &quot;Already Online!&quot;
+
+        # display flux information and online time
+        flux=`echo $con | awk -F &#39;,&#39; &#39;{print $3}&#39;`
+        time=`echo $con | awk -F &#39;,&#39; &#39;{print $5}&#39;`
+        a=$(($flux/1000000000)) 
+        b=$((($flux%1000000000)/100000000))
+        c=$((($flux%100000000)/10000000))
+        h=$(($time/3600))
+        m=$(($(($time%3600))/60))
+        s=$(($(($time%3600))%60))
+        echo &quot;Used Flux: &quot;$a&quot;.&quot;$b$c&quot;G, Online Time: &quot;$h&quot;:&quot;$m&quot;:&quot;$s&quot;.&quot;
+    fi
+}
+
+do_logout() {
+    # start logout
+    res=`curl -s http://net.tsinghua.edu.cn/cgi-bin/do_logout`
+
+    #handle result
+    if [ &quot;$res&quot; == &quot;logout_ok&quot; ]; then
+        echo &quot;Logout Success!&quot;
+    elif [ &quot;$res&quot; == &quot;not_online_error&quot; ]; then
+        echo &quot;You&#39;re not Online!&quot;
+    else
+        echo &quot;Operation Failed!&quot;
+    fi
+}
+
+#############################################################
+if [ &quot;$1&quot; == &quot;login&quot; ]; then
+    do_login
+elif [ &quot;$1&quot; == &quot;logout&quot; ]; then
+    do_logout
+else
+    echo &quot;Usage: &quot;$0&quot; {login|logout}&quot;
+fi
+</code></pre>
+
+<p>此脚本理论上也适用于Mac OS X以及FreeBSD等*NIX系统。</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[堆和栈的区别]]></title>
+    <link href="https://www.yunaitong.cn/difference-between-heap-and-stack.html"/>
+    <updated>2016-02-14T16:09:10+08:00</updated>
+    <id>https://www.yunaitong.cn/difference-between-heap-and-stack.html</id>
+    <content type="html"><![CDATA[
+<h2 id="toc_0">一、预备知识—程序的内存分配</h2>
+
+<p>一个由C/C++编译的程序占用的内存分为以下几个部分：</p>
+
+<ol>
+<li>栈区（stack）：由编译器自动分配释放，存放函数的参数值，局部变量的值等。其操作方式类似于数据结构中的栈。</li>
+<li>堆区（heap）：一般由程序员分配释放，若程序员不释放，程序结束时可能由OS回收。注意它与数据结构中的堆是两回事，分配方式倒是类似于链表，呵呵。</li>
+<li>全局区（静态区）（static）：全局变量和静态变量的存储是放在一块的，初始化的全局变量和静态变量在一块区域，未初始化的全局变量和未初始化的静态变量在相邻的另一块区域。程序结束后由系统释放。</li>
+<li>文字常量区：常量字符串就是放在这里的。程序结束后由系统释放。</li>
+<li>程序代码区：存放函数体的二进制代码。<br/></li>
+</ol>
+
+<span id="more"></span><!-- more -->
+
+<h2 id="toc_1">二、例子程序</h2>
+
+<p>这是一个前辈写的，非常详细</p>
+
+<pre><code class="language-c++">//main.cpp
+int a = 0;  // 全局初始化区
+char *p1;   //全局未初始化区
+int main()
+{
+    int b;                 //栈
+    char s[] = &quot;abc&quot;;      //栈
+    char *p2;              //栈
+    char *p3 = &quot;123456&quot;;   //123456\0在常量区，p3在栈上。
+    static int c =0;   //全局（静态）初始化区
+    p1 = (char *)malloc(10);
+    p2 = (char *)malloc(20);
+    //分配得来的10和20字节的区域就在堆区。
+    strcpy(p1, &quot;123456&quot;);  //123456\0放在常量区，编译器可能会将它与p3所指向的&quot;123456&quot;,优化成一个地方。
+}
+</code></pre>
+
+<h2 id="toc_2">二、堆和栈的理论知识</h2>
+
+<h3 id="toc_3">2.1 申请方式</h3>
+
+<p>栈：由系统自动分配。例如，声明在函数中一个局部变量<code>int b</code>系统自动在栈中为<code>b</code>开辟空间。</p>
+
+<p>堆：需要程序员自己申请，并指明大小，在c中<code>malloc</code>函数：如<code>p1 = (char *)malloc(10);</code>在C++中用<code>new</code>运算符：如<code>p2 = new char[10];</code>但是注意<code>p1</code>、<code>p2</code>本身是在栈中的。</p>
+
+<h3 id="toc_4">2.2 申请后系统的响应</h3>
+
+<p>栈：只要栈的剩余空间大于所申请空间，系统将为程序提供内存，否则将报异常提示栈溢出。</p>
+
+<p>堆：首先应该知道操作系统有一个记录空闲内存地址的链表，当系统收到程序的申请时，会遍历该链表，寻找第一个空间大于所申请空间的堆结点，然后将该结点从空闲结点链表中删除，并将该结点的空间分配给程序，另外，对于大多数系统，会在这块内存空间中的首地址处记录本次分配的大小，这样，代码中的<code>delete</code>语句才能正确的释放本内存空间。另外，由于找到的堆结点的大小不一定正好等于申请的大小，系统会自动的将多余的那部分重新放入空闲链表中。</p>
+
+<h3 id="toc_5">2.3 申请大小的限制</h3>
+
+<p>栈：在Windows下，栈是向低地址扩展的数据结构，是一块连续的内存的区域。这句话的意思是栈顶的地址和栈的最大容量是系统预先规定好的，在Windows下，栈的大小是2M（也有的说是1M，总之是一个编译时就确定的常数），如果申请的空间超过栈的剩余空间时，将提示overflow。因此，能从栈获得的空间较小。</p>
+
+<p>堆：堆是向高地址扩展的数据结构，是不连续的内存区域。这是由于系统是用链表来存储的空闲内存地址的，自然是不连续的，而链表的遍历方向是由低地址向高地址。堆的大小受限于计算机系统中有效的虚拟内存。由此可见，堆获得的空间比较灵活，也比较大。</p>
+
+<h3 id="toc_6">2.4 申请效率的比较</h3>
+
+<p>栈由系统自动分配，速度较快。但程序员是无法控制的。堆是由<code>new</code>分配的内存，一般速度比较慢，而且容易产生内存碎片，不过用起来最方便。另外，在Windows下，最好的方式是用<code>VirtualAlloc</code>分配内存，他不是在堆，也不是在栈是直接在进程的地址空间中保留一块内存，虽然用起来最不方便。但是速度快，也最灵活。</p>
+
+<h3 id="toc_7">2.5 堆和栈中的存储内容</h3>
+
+<p>栈：在函数调用时，第一个进栈的是主函数中后的下一条指令（函数调用语句的下一条可执行语句）的地址，然后是函数的各个参数，在大多数的C编译器中，参数是由右往左入栈的，然后是函数中的局部变量。注意静态变量是不入栈的。当本次函数调用结束后，局部变量先出栈，然后是参数，最后栈顶指针指向最开始存的地址，也就是主函数中的下一条指令，程序由该点继续运行。</p>
+
+<p>堆：一般是在堆的头部用一个字节存放堆的大小。堆中的具体内容由程序员安排。</p>
+
+<h3 id="toc_8">2.6 存取效率的比较</h3>
+
+<pre><code class="language-c++">char s1[] = &quot;aaaaaaaaaaa&quot;;
+char *s2 = &quot;bbbbbbbbbbb&quot;;
+</code></pre>
+
+<p>aaaaaaaaaaa是在运行时刻赋值的；而bbbbbbbbbbb是在编译时就确定的。但是，在以后的存取中，在栈上的数组比指针所指向的字符串(例如堆)快。</p>
+
+<p>比如：</p>
+
+<pre><code class="language-c++">int main()
+{
+    char  a = 1;
+    char c[] = &quot;1234567890&quot;;
+    char *p = &quot;1234567890&quot;;
+    a =  c[1];
+    a = p[1];
+    return 0;
+}
+</code></pre>
+
+<p>对应的汇编代码 </p>
+
+<p>10: a = c[1];</p>
+
+<pre><code>00401067 8A 4D F1 mov cl,byte ptr[ebp-0Fh] 
+0040106A 88 4D FC mov byte ptr[ebp-4],cl 
+</code></pre>
+
+<p>11: a = p[1];</p>
+
+<pre><code>0040106D 8B 55 EC mov edx, dword ptr[ebp-14h] 
+00401070 8A 42 01 mov al, byte ptr[edx+1] 
+00401073 88 45 FC mov byte ptr[ebp-4], al
+</code></pre>
+
+<p>第一种在读取时直接就把字符串中的元素读到寄存器<code>cl</code>中，而第二种则要先把指针值读到<code>edx</code>中，再根据<code>edx</code>读取字符，显然慢了。</p>
+
+<h3 id="toc_9">2.7 小结</h3>
+
+<p>堆和栈的区别可以用如下的比喻来看出：使用栈就像我们去饭馆里吃饭，只管点菜（发出申请）、付钱和吃（使用），吃饱了就走，不必理会切菜、洗菜等准备工作和洗碗、刷锅等扫尾工作，他的好处是快捷，但是自由度小。使用堆就象是自己动手做喜欢吃的菜肴，比较麻烦，但是比较符合自己的口味，而且自由度大。</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[关于C#中的委托和事件，讲解得极好的一篇文章]]></title>
+    <link href="https://www.yunaitong.cn/c-sharp-delegate-and-event.html"/>
+    <updated>2016-02-14T13:39:33+08:00</updated>
+    <id>https://www.yunaitong.cn/c-sharp-delegate-and-event.html</id>
+    <content type="html"><![CDATA[
+<p>委托和事件在 .Net Framework中的应用非常广泛，然而，较好地理解委托和事件对很多接触C#时间不长的人来说并不容易。它们就像是一道槛儿，过了这个槛的人，觉得真是太容易了，而没有过去的人每次见到委托和事件就觉得心里别（biè）得慌，混身不自在。本文中，我将通过两个范例由浅入深地讲述什么是委托、为什么要使 用委托、事件的由来、.Net Framework中的委托和事件、委托和事件对Observer设计模式的意义，对它们的中间代码也做了讨论。</p>
+
+<span id="more"></span><!-- more -->
+
+<h2 id="toc_0">将方法作为方法的参数</h2>
+
+<p>我们先不管这个标题如何的绕口，也不管委托究竟是个什么东西，来看下面这两个最简单的方法，它们不过是在屏幕上输出一句问候的话语：</p>
+
+<pre><code class="language-csharp">public void GreetPeople(string name) {
+    // 做某些额外的事情，比如初始化之类，此处略
+    EnglishGreeting(name);
+}
+
+public void EnglishGreeting(string name) {
+    Console.WriteLine(&quot;Morning, &quot; + name);
+}
+</code></pre>
+
+<p>暂且不管这两个方法有没有什么实际意义。<code>GreetPeople</code>用于向某人问好，当我们传递代表某人姓名的<code>name</code>参数，比如说&quot;Jimmy&quot;，进去的时候，在这个方法中，将调用<code>EnglishGreeting</code>方法，再次传递<code>name</code>参数，<code>EnglishGreeting</code>则用于向屏幕输出&quot;Morning, Jimmy&quot;。</p>
+
+<p>现在假设这个程序需要进行全球化，哎呀，不好了，我是中国人，我不明白&quot;Morning&quot;是什么意思，怎么办呢？好吧，我们再加个中文版的问候方法：</p>
+
+<pre><code class="language-csharp">public void ChineseGreeting(string name) {
+    Console.WriteLine(&quot;早上好, &quot; + name);
+}
+</code></pre>
+
+<p>这时候，<code>GreetPeople</code>也需要改一改了，不然如何判断到底用哪个版本的Greeting问候方法合适呢？在进行这个之前，我们最好再定义一个枚举作为判断的依据：</p>
+
+<pre><code class="language-csharp">public enum Language {
+    English, Chinese
+}
+
+public void GreetPeople(string name, Language lang) {
+    //做某些额外的事情，比如初始化之类，此处略
+    switch(lang) {
+    case Language.English:
+        EnglishGreeting(name);
+        break; 
+    case Language.Chinese:
+        ChineseGreeting(name);
+        break;
+    }
+}
+</code></pre>
+
+<p>OK，尽管这样解决了问题，但我不说大家也很容易想到，这个解决方案的可扩展性很差，如果日后我们需要再添加韩文版、日文版，就不得不反复修改枚举和<code>GreetPeople()</code>方法，以适应新的需求。</p>
+
+<p>在考虑新的解决方案之前，我们先看看<code>GreetPeople</code>的方法签名：</p>
+
+<pre><code class="language-csharp">public void GreetPeople(string name, Language lang)
+</code></pre>
+
+<p>我们仅看<code>string name</code>，在这里，<code>string</code>是参数类型，<code>name</code>是参数变量，当我们赋给<code>name</code>字符串&quot;jimmy&quot;时，它就代表&quot;jimmy&quot;这个值；当我们赋给它&quot;张子阳&quot;时，它又代表着&quot;张子阳&quot;这个值。然后，我们可以在方法体内对这个<code>name</code>进行其他操作。哎，这简直是废话么，刚学程序就知道了。</p>
+
+<p>如果你再仔细想想，假如<code>GreetPeople()</code>方法可以接受一个参数变量，这个变量可以代表另一个方法，当我们给这个变量赋值<code>EnglishGreeting</code>的时候，它代表着<code>EnglishGreeting()</code>这个方法；当我们给它赋值<code>ChineseGreeting</code>的时候，它又代表着<code>ChineseGreeting()</code>方法。我们将这个参数变量命名为<code>MakeGreeting</code>，那么不是可以如同给<code>name</code>赋值时一样，在调用 <code>GreetPeople()</code>方法的时候，给这个<code>MakeGreeting</code>参数也赋上值呢(<code>ChineseGreeting</code>或者<code>EnglishGreeting</code>等)？然后，我们在方法体内，也可以像使用别的参数一样使用 <code>MakeGreeting</code>。但是，由于<code>MakeGreeting</code>代表着一个方法，它的使用方式应该和它被赋的方法(比如<code>ChineseGreeting</code>)是一样的，比如：</p>
+
+<pre><code class="language-csharp">MakeGreeting(name);
+</code></pre>
+
+<p>好了，有了思路了，我们现在就来改改<code>GreetPeople()</code>方法，那么它应该是这个样子了：</p>
+
+<pre><code class="language-csharp">public void GreetPeople(string name, *** MakeGreeting) {
+    MakeGreeting(name);
+}
+</code></pre>
+
+<p>注意到<code>***</code>，这个位置通常放置的应该是参数的类型，但到目前为止，我们仅仅是想到应该有个可以代表方法的参数，并按这个思路去改写<code>GreetPeople</code>方法，现在就出现了一个大问题：这个代表着方法的<code>MakeGreeting</code>参数应该是什么类型的？</p>
+
+<blockquote>
+<p>NOTE：这里已不再需要枚举了，因为在给<code>MakeGreeting</code>赋值的时候动态地决定使用哪个方法，是<code>ChineseGreeting</code>还是<code>EnglishGreeting</code>，而在这个两个方法内部，已经对使用&quot;morning&quot;还是&quot;早上好&quot;作了区分。</p>
+</blockquote>
+
+<p>聪明的你应该已经想到了，现在是委托该出场的时候了。但讲述委托之前，我们再看看<code>MakeGreeting</code>参数所能代表的<code>ChineseGreeting()</code>和<code>EnglishGreeting()</code>方法的签名：</p>
+
+<pre><code class="language-csharp">public void EnglishGreeting(string name)
+public void ChineseGreeting(string name)
+</code></pre>
+
+<p>如同<code>name</code>可以接受<code>string</code>类型的<code>&quot;true&quot;</code>和<code>&quot;1&quot;</code>，但不能接受<code>bool</code>类型的<code>true</code>和<code>int</code>类型的<code>1</code>一样，<code>MakeGreeting</code>的参数类型定义应该能够确定<code>MakeGreeting</code>可以代表的方法种类，再进一步讲，就是<code>MakeGreeting</code>可以代表的方法的参数类型和个数。于是，委托出现了：它定义了<code>MakeGreeting</code>参数所能代表的方法的种类，也就是<code>MakeGreeting</code>参数的类型。</p>
+
+<blockquote>
+<p>NOTE：如果上面这句话比较绕口，我把它翻译成这样：<code>string</code>定义了<code>name</code>参数所能代表的值的种类，也就是<code>name</code>参数的类型。</p>
+</blockquote>
+
+<p>本例中委托的定义：</p>
+
+<pre><code class="language-csharp">public delegate void GreetingDelegate(string name);
+</code></pre>
+
+<p>可以与上面<code>EnglishGreeting()</code>方法的签名对比一下，除了加入了<code>delegate</code>关键字以外，其余的是不是完全一样？</p>
+
+<p>现在，让我们再次改动<code>GreetPeople()</code>方法，如下所示：</p>
+
+<pre><code class="language-csharp">public void GreetPeople(string name, GreetingDelegate MakeGreeting) {
+    MakeGreeting(name);
+}
+</code></pre>
+
+<p>如你所见，委托<code>GreetingDelegate</code>出现的位置与<code>string</code>相同，<code>string</code>是一个类型，那么<code>GreetingDelegate</code>应该也是一个类型，或者叫类(Class)。但是委托的声明方式和类却完全不同，这是怎么一回事？实际上，委托在编译的时候确实会编译成类。因为<code>Delegate</code>是一个类，所以在任何可以声明类的地方都可以声明委托。更多的内容将在下面讲述。现在，请看看这个范例的完整代码：</p>
+
+<pre><code class="language-csharp">using System;
+using System.Collections.Generic;
+using System.Text;
+namespace Delegate {
+    //定义委托，它定义了可以代表的方法的类型
+    public delegate void GreetingDelegate(string name);
+
+    class Program {
+        private static void EnglishGreeting(string name) {
+            Console.WriteLine(&quot;Morning, &quot; + name);
+        }
+
+        private static void ChineseGreeting(string name) {
+            Console.WriteLine(&quot;早上好, &quot; + name);
+        }
+
+        //注意此方法，它接受一个GreetingDelegate类型的方法作为参数
+        private static void GreetPeople(string name, GreetingDelegate MakeGreeting) {
+            MakeGreeting(name);
+        }
+
+        static void Main(string[] args) {
+            GreetPeople(&quot;Jimmy Zhang&quot;, EnglishGreeting);
+            GreetPeople(&quot;张子阳&quot;, ChineseGreeting);
+            Console.ReadKey();
+        }
+    }
+}
+</code></pre>
+
+<p>输出如下：</p>
+
+<blockquote>
+<p>Morning, Jimmy Zhang<br/>
+早上好, 张子阳</p>
+</blockquote>
+
+<p>我们现在对委托做一个总结：</p>
+
+<p>委托是一个类，它定义了方法的类型，使得可以将方法当作另一个方法的参数来进行传递，这种将方法动态地赋给参数的做法，可以避免在程序中大量使用<code>if-else</code>(<code>switch</code>)语句，同时使得程序具有更好的可扩展性。</p>
+
+<h2 id="toc_1">将方法绑定到委托</h2>
+
+<p>看到这里，是不是有那么点如梦初醒的感觉？于是，你是不是在想：在上面的例子中，我不一定要直接在<code>GreetPeople()</code>方法中给<code>name</code>参数赋值，我可以像这样使用变量：</p>
+
+<pre><code class="language-csharp">static void Main(string[] args) {
+    string name1, name2;
+    name1 = &quot;Jimmy Zhang&quot;;
+    name2 = &quot;张子阳&quot;;
+
+    GreetPeople(name1, EnglishGreeting);
+    GreetPeople(name2, ChineseGreeting);
+    Console.ReadKey();
+}
+</code></pre>
+
+<p>而既然委托<code>GreetingDelegate</code>和类型<code>string</code>的地位一样，都是定义了一种参数类型，那么，我是不是也可以这么使用委托？</p>
+
+<pre><code class="language-csharp">static void Main(string[] args) {
+    GreetingDelegate delegate1, delegate2;
+    delegate1 = EnglishGreeting;
+    delegate2 = ChineseGreeting;
+    GreetPeople(&quot;Jimmy Zhang&quot;, delegate1);
+    GreetPeople(&quot;张子阳&quot;, delegate2);
+    Console.ReadKey();
+}
+</code></pre>
+
+<p>如你所料，这样是没有问题的，程序一如预料的那样输出。这里，我想说的是委托不同于<code>string</code>的一个特性：可以<strong>将多个方法赋给同一个委托</strong>，或者叫<strong>将多个方法绑定到同一个委托</strong>，当调用这个委托的时候，将依次调用其所绑定的方法。在这个例子中，语法如下：</p>
+
+<pre><code class="language-csharp">static void Main(string[] args) {
+    GreetingDelegate delegate1;
+    delegate1 = EnglishGreeting;     // 先给委托类型的变量赋值
+    delegate1 += ChineseGreeting;    // 给此委托变量再绑定一个方法
+
+    // 将先后调用EnglishGreeting与ChineseGreeting方法
+    GreetPeople(&quot;Jimmy Zhang&quot;, delegate1);
+    Console.ReadKey();
+}
+</code></pre>
+
+<p>输出为：</p>
+
+<blockquote>
+<p>Morning, Jimmy Zhang<br/>
+早上好, Jimmy Zhang</p>
+</blockquote>
+
+<p>实际上，我们可以也可以绕过<code>GreetPeople</code>方法，通过委托来直接调用<code>EnglishGreeting</code>和<code>ChineseGreeting</code>：</p>
+
+<pre><code class="language-csharp">static void Main(string[] args) {
+    GreetingDelegate delegate1;
+    delegate1 = EnglishGreeting;     // 先给委托类型的变量赋值
+    delegate1 += ChineseGreeting;    // 给此委托变量再绑定一个方法
+
+    // 将先后调用EnglishGreeting与ChineseGreeting方法
+    delegate1(&quot;Jimmy Zhang&quot;);      
+    Console.ReadKey();
+}
+</code></pre>
+
+<blockquote>
+<p>NOTE：这在本例中是没有问题的，但回头看下上面<code>GreetPeople()</code>的定义，在它之中可以做一些对于<code>EnglshihGreeting</code>和<code>ChineseGreeting</code>来说都需要进行的工作，为了简便我做了省略。</p>
+</blockquote>
+
+<p>注意这里，第一次用的<code>=</code>，是赋值的语法；第二次用的是<code>+=</code>，是绑定的语法。如果第一次就使用<code>+=</code>，将出现<code>使用了未赋值的局部变量</code>的编译错误。</p>
+
+<p>我们也可以使用下面的代码来这样简化这一过程：</p>
+
+<pre><code class="language-csharp">GreetingDelegate delegate1 = new GreetingDelegate(EnglishGreeting);
+delegate1 += ChineseGreeting;       // 给此委托变量再绑定一个方法
+</code></pre>
+
+<p>看到这里，应该注意到，这段代码第一条语句与实例化一个类是何其的相似，你不禁想到：上面第一次绑定委托时不可以使用<code>+=</code>的编译错误，或许可以用这样的方法来避免：</p>
+
+<pre><code class="language-csharp">GreetingDelegate delegate1 = new GreetingDelegate();
+delegate1 += EnglishGreeting;       // 这次用的是 “+=”，绑定语法
+delegate1 += ChineseGreeting;       // 给此委托变量再绑定一个方法
+</code></pre>
+
+<p>但实际上，这样会出现编译错误：<code>&quot;GreetingDelegate&quot;方法没有采用&quot;0&quot;个参数的重载</code>。尽管这样的结果让我们觉得有点沮丧，但是编译的提示：<code>没有0个参数的重载</code>再次让我们联想到了类的构造函数。我知道你一定按捺不住想探个究竟，但再此之前，我们需要先把基础知识和应用介绍完。</p>
+
+<p>既然给委托可以绑定一个方法，那么也应该有办法取消对方法的绑定，很容易想到，这个语法是<code>-=</code>：</p>
+
+<pre><code class="language-csharp">static void Main(string[] args) {
+    GreetingDelegate delegate1 = new GreetingDelegate(EnglishGreeting);
+    delegate1 += ChineseGreeting;    // 给此委托变量再绑定一个方法
+    // 将先后调用EnglishGreeting与ChineseGreeting方法
+    GreetPeople(&quot;Jimmy Zhang&quot;, delegate1);
+    Console.WriteLine(); 
+
+    delegate1 -= EnglishGreeting; //取消对EnglishGreeting方法的绑定
+    // 将仅调用ChineseGreeting
+    GreetPeople(&quot;张子阳&quot;, delegate1);
+    Console.ReadKey();
+}
+</code></pre>
+
+<p>输出为：</p>
+
+<blockquote>
+<p>Morning, Jimmy Zhang <br/>
+早上好, Jimmy Zhang<br/>
+早上好, 张子阳</p>
+</blockquote>
+
+<p>让我们再次对委托作个总结：</p>
+
+<p>使用委托可以将多个方法绑定到同一个委托变量，当调用此变量时(这里用&quot;调用&quot;这个词，是因为此变量代表一个方法)，可以依次调用所有绑定的方法。</p>
+
+<h2 id="toc_2">事件的由来</h2>
+
+<p>我们继续思考上面的程序：上面的三个方法都定义在<code>Program</code>类中，这样做是为了理解的方便，实际应用中，通常都是<code>GreetPeople</code>在一个类中，<code>ChineseGreeting</code>和<code>EnglishGreeting</code>在另外的类中。现在你已经对委托有了初步了解，是时候对上面的例子做个改进了。假设我们将<code>GreetingPeople()</code>放在一个叫<code>GreetingManager</code>的类中，那么新程序应该是这个样子的：</p>
+
+<pre><code class="language-csharp">namespace Delegate {
+    //定义委托，它定义了可以代表的方法的类型
+    public delegate void GreetingDelegate(string name);
+
+    //新建的GreetingManager类
+    public class GreetingManager{
+        public void GreetPeople(string name, GreetingDelegate MakeGreeting) {
+            MakeGreeting(name);
+        }
+    }
+    
+    class Program {
+        private static void EnglishGreeting(string name) {
+            Console.WriteLine(&quot;Morning, &quot; + name);
+        }
+
+        private static void ChineseGreeting(string name) {
+            Console.WriteLine(&quot;早上好, &quot; + name);
+        }
+
+        static void Main(string[] args) {
+            // ......
+        }
+    }
+}
+</code></pre>
+
+<p>这个时候，如果要实现前面演示的输出效果，<code>Main</code>方法我想应该是这样的：</p>
+
+<pre><code class="language-csharp">static void Main(string[] args) {
+    GreetingManager gm = new GreetingManager();
+    gm.GreetPeople(&quot;Jimmy Zhang&quot;, EnglishGreeting);
+    gm.GreetPeople(&quot;张子阳&quot;, ChineseGreeting);
+}
+</code></pre>
+
+<p>我们运行这段代码，嗯，没有任何问题。程序一如预料地那样输出了：</p>
+
+<blockquote>
+<p>Morning, Jimmy Zhang<br/>
+早上好, 张子阳</p>
+</blockquote>
+
+<p>现在，假设我们需要使用上一节学到的知识，将多个方法绑定到同一个委托变量，该如何做呢？让我们再次改写代码：</p>
+
+<pre><code class="language-csharp">static void Main(string[] args) {
+    GreetingManager gm = new GreetingManager();
+    GreetingDelegate delegate1;
+    delegate1 = EnglishGreeting;
+    delegate1 += ChineseGreeting;
+
+    gm.GreetPeople(&quot;Jimmy Zhang&quot;, delegate1);
+}
+</code></pre>
+
+<p>输出：</p>
+
+<blockquote>
+<p>Morning, Jimmy Zhang<br/>
+早上好, Jimmy Zhang</p>
+</blockquote>
+
+<p>到了这里，我们不禁想到：面向对象设计，讲究的是对象的封装，既然可以声明委托类型的变量(在上例中是<code>delegate1</code>)，我们何不将这个变量封装到<code>GreetManager</code>类中？在这个类的客户端中使用不是更方便么？于是，我们改写<code>GreetManager</code>类，像这样：</p>
+
+<pre><code class="language-csharp">public class GreetingManager {
+    // 在GreetingManager类的内部声明delegate1变量
+    public GreetingDelegate delegate1;      
+    public void GreetPeople(string name, GreetingDelegate MakeGreeting) {
+        MakeGreeting(name);
+    }
+}
+</code></pre>
+
+<p>现在，我们可以这样使用这个委托变量：</p>
+
+<pre><code class="language-csharp">static void Main(string[] args) {
+    GreetingManager gm = new GreetingManager();
+    gm.delegate1 = EnglishGreeting;
+    gm.delegate1 += ChineseGreeting;
+    gm.GreetPeople(”Jimmy Zhang”, gm.delegate1);
+}
+</code></pre>
+
+<p>尽管这样达到了我们要的效果，但是似乎并不美气，光是第一个方法注册用<code>=</code>，第二个用<code>+=</code>就让人觉得别扭。此时，轮到<code>Event</code>出场了，C#中可以使用事件来专门完成这项工作，我们改写<code>GreetingManager</code>类，它变成了这个样子：</p>
+
+<pre><code class="language-csharp">public class GreetingManager {
+    // 这一次我们在这里声明一个事件
+    public event GreetingDelegate MakeGreet;
+    public void GreetPeople(string name, GreetingDelegate MakeGreeting) {
+        MakeGreeting(name);
+    }
+}
+</code></pre>
+
+<p>很容易注意到：<code>MakeGreet</code>事件的声明与之前委托变量<code>delegate1</code>的声明唯一的区别是多了一个<code>event</code>关键字。看到这里，你差不多明白到：事件其实没什么不好理解的，声明一个事件不过类似于声明一个委托类型的变量而已。</p>
+
+<p>我们想当然地改写<code>Main</code>方法：</p>
+
+<pre><code class="language-csharp">static void Main(string[] args) {
+    GreetingManager gm = new GreetingManager();
+    gm.MakeGreet = EnglishGreeting; // 编译错误1
+    gm.MakeGreet += ChineseGreeting;
+    gm.GreetPeople(&quot;Jimmy Zhang&quot;, gm.MakeGreet); //编译错误2
+}
+</code></pre>
+
+<p>这次，你会得到编译错误：<code>事件&quot;Delegate.GreetingManager.MakeGreet&quot;只能出现在 += 或 -= 的左边(从类型&quot;Delegate.GreetingManager&quot;中使用时除外)</code>。</p>
+
+<h2 id="toc_3">事件和委托的编译代码</h2>
+
+<p>这时候，我们不得不注释掉编译错误的行，然后重新进行编译，再借助Reflactor来对<code>event</code>的声明语句做一探究，看看为什么会发生这样的错误：</p>
+
+<pre><code class="language-csharp">public event GreetingDelegate MakeGreet;
+</code></pre>
+
+<p>可以看到，实际上尽管我们在<code>GreetingManager</code>里将<code>MakeGreet</code>声明为<code>public</code>，但是，实际上<code>MakeGreet</code>会被编译成私有字段，难怪会发生上面的编译错误了，因为它根本就不允许在<code>GreetingManager</code>类的外面以赋值的方式访问。</p>
+
+<p>我们进一步看下<code>MakeGreet</code>所产生的代码：</p>
+
+<pre><code class="language-csharp">private GreetingDelegate MakeGreet;  //对事件的声明，实际是声明一个私有的委托变量
+
+[MethodImpl(MethodImplOptions.Synchronized)]
+public void add_MakeGreet(GreetingDelegate value) {
+    this.MakeGreet = (GreetingDelegate) Delegate.Combine(this.MakeGreet, value);
+}
+
+[MethodImpl(MethodImplOptions.Synchronized)]
+public void remove_MakeGreet(GreetingDelegate value) {
+    this.MakeGreet = (GreetingDelegate) Delegate.Remove(this.MakeGreet, value);
+} 
+</code></pre>
+
+<p>现在已经很明确了：<code>MakeGreet</code>事件确实是一个<code>GreetingDelegate</code>类型的委托，只不过不管是不是声明为<code>public</code>，它总是被声明为<code>private</code>。另外，它还有两个方法，分别是<code>add_MakeGreet</code>和<code>remove_MakeGreet</code>，这两个方法分别用于注册委托类型的方法和取消注册，实际上也就是：<code>+=</code>对应<code>add_MakeGreet</code>，<code>-=</code>对应<code>remove_MakeGreet</code>。而这两个方法的访问限制取决于声明事件时的访问限制符。</p>
+
+<p>在<code>add_MakeGreet()</code>方法内部，实际上调用了<code>System.Delegate</code>的<code>Combine()</code>静态方法，这个方法用于将当前的变量添加到委托链表中。我们前面提到过两次，说委托实际上是一个类，在我们定义委托的时候：</p>
+
+<pre><code class="language-csharp">public delegate void GreetingDelegate(string name); 
+</code></pre>
+
+<p>当编译器遇到这段代码的时候，会生成下面这样一个完整的类：</p>
+
+<pre><code class="language-csharp">public class GreetingDelegate:System.MulticastDelegate {
+
+    public GreetingDelegate(object @object, IntPtr method);
+    public virtual IAsyncResult BeginInvoke(string name, AsyncCallback callback, object @object);
+    public virtual void EndInvoke(IAsyncResult result);
+    public virtual void Invoke(string name);
+}
+</code></pre>
+
+<p>关于这个类的更深入内容，可以参阅《CLR Via C#》等相关书籍，这里就不再讨论了。</p>
+
+<h2 id="toc_4">委托、事件与Observer设计模式</h2>
+
+<h3 id="toc_5">范例说明</h3>
+
+<p>上面的例子已不足以再进行下面的讲解了，我们来看一个新的范例，因为之前已经介绍了很多的内容，所以本节的进度会稍微快一些：</p>
+
+<p>假设我们有个高档的热水器，我们给它通上电，当水温超过95度的时候：</p>
+
+<ol>
+<li>扬声器会开始发出语音，告诉你水的温度；</li>
+<li>液晶屏也会改变水温的显示，来提示水已经快烧开了。</li>
+</ol>
+
+<p>现在我们需要写个程序来模拟这个烧水的过程，我们将定义一个类来代表热水器，我们管它叫：<code>Heater</code>，它有代表水温的字段，叫做<code>temperature</code>；当然，还有必不可少的给水加热方法<code>BoilWater()</code>，一个发出语音警报的方法<code>MakeAlert()</code>，一个显示水温的方法，<code>ShowMsg()</code>。</p>
+
+<pre><code class="language-csharp">namespace Delegate {
+    class Heater {
+        private int temperature; // 水温
+        // 烧水
+        public void BoilWater() {
+            for (int i = 0; i &lt;= 100; i++) {
+                temperature = i;
+
+                if (temperature &gt; 95) {
+                    MakeAlert(temperature);
+                    ShowMsg(temperature);
+                }
+            }
+        }
+        // 发出语音警报
+        private void MakeAlert(int param) {
+            Console.WriteLine(&quot;Alarm：嘀嘀嘀，水已经{0}度了。&quot;, param);
+        }
+
+        // 显示水温
+        private void ShowMsg(int param) {
+            Console.WriteLine(&quot;Display：水快开了，当前温度{0}度。&quot;, param);
+        }
+    }
+
+    class Program {
+        static void Main() {
+            Heater ht = new Heater();
+            ht.BoilWater();
+        }
+    }
+}
+</code></pre>
+
+<h3 id="toc_6">Observer设计模式简介</h3>
+
+<p>上面的例子显然能完成我们之前描述的工作，但是却并不够好。现在假设热水器由三部分组成：热水器、警报器、显示器，它们来自于不同厂商并进行了组装。那么，应该是热水器仅仅负责烧水，它不能发出警报也不能显示水温；在水烧开时由警报器发出警报、显示器显示提示和水温。</p>
+
+<p>这时候，上面的例子就应该变成这个样子：</p>
+
+<pre><code class="language-csharp">// 热水器
+public class Heater {
+    private int temperature;
+
+    // 烧水
+    private void BoilWater() {
+        for (int i = 0; i &lt;= 100; i++) {
+            temperature = i;
+        }
+    }
+}
+
+// 警报器
+public class Alarm {
+    private void MakeAlert(int param) {
+        Console.WriteLine(&quot;Alarm：嘀嘀嘀，水已经{0}度了。&quot;, param);
+    }
+}
+
+// 显示器
+public class Display {
+    private void ShowMsg(int param) {
+        Console.WriteLine(&quot;Display：水已烧开，当前温度{0}度。&quot;, param);
+    }
+}
+</code></pre>
+
+<p>这里就出现了一个问题：如何在水烧开的时候通知报警器和显示器？在继续进行之前，我们先了解一下Observer设计模式，Observer设计模式中主要包括如下两类对象：</p>
+
+<p>Subject：监视对象，它往往包含着其他对象所感兴趣的内容。在本范例中，热水器就是一个监视对象，它包含的其他对象所感兴趣的内容，就是<code>temprature</code>字段，当这个字段的值快到<code>100</code>时，会不断把数据发给监视它的对象。</p>
+
+<p>Observer：监视者，它监视Subject，当Subject中的某件事发生的时候，会告知Observer，而Observer则会采取相应的行动。在本范例中，Observer有警报器和显示器，它们采取的行动分别是发出警报和显示水温。</p>
+
+<p>在本例中，事情发生的顺序应该是这样的：</p>
+
+<ul>
+<li>警报器和显示器告诉热水器，它对它的温度比较感兴趣(注册)。</li>
+<li>热水器知道后保留对警报器和显示器的引用。</li>
+<li>热水器进行烧水这一动作，当水温超过<code>95</code>度时，通过对警报器和显示器的引用，自动调用警报器的<code>MakeAlert()</code>方法、显示器的<code>ShowMsg()</code>方法。</li>
+</ul>
+
+<p>类似这样的例子是很多的，GOF对它进行了抽象，称为Observer设计模式：Observer设计模式是为了定义对象间的一种一对多的依赖关系，以便于当一个对象的状态改变时，其他依赖于它的对象会被自动告知并更新。Observer模式是一种松耦合的设计模式。</p>
+
+<h3 id="toc_7">实现范例的Observer设计模式</h3>
+
+<p>我们之前已经对委托和事件介绍很多了，现在写代码应该很容易了，现在在这里直接给出代码，并在注释中加以说明。</p>
+
+<pre><code class="language-csharp">using System;
+using System.Collections.Generic;
+using System.Text;
+namespace Delegate {
+    // 热水器
+    public class Heater {
+        private int temperature;
+        public delegate void BoilHandler(int param);       //声明委托
+        public event BoilHandler BoilEvent;                //声明事件 
+
+        // 烧水
+        public void BoilWater() {
+            for (int i = 0; i &lt;= 100; i++) {
+                temperature = i;
+
+                if (temperature &gt; 95) {
+                    if (BoilEvent != null) {       //如果有对象注册
+                        BoilEvent(temperature);     //调用所有注册对象的方法
+                    }
+                }
+            }
+        }
+    }
+    // 警报器
+    public class Alarm {
+        private void MakeAlert(int param) {
+            Console.WriteLine(&quot;Alarm：嘀嘀嘀，水已经{0}度了。&quot;, param);
+        }
+    }
+
+    // 显示器
+    public class Display {
+        private static void ShowMsg(int param) {
+            Console.WriteLine(&quot;Display：水已烧开，当前温度{0}度。&quot;, param);
+        }
+    }
+
+    class Program {
+        static void Main() {
+            Heater heater = new Heater();
+            Alarm alarm = new Alarm();
+
+            heater.BoilEvent += alarm.MakeAlert;          //注册方法
+            heater.BoilEvent += (new Alarm()).MakeAlert;  //给匿名对象注册方法
+            heater.BoilEvent += Display.ShowMsg;          //注册静态方法
+
+            heater.BoilWater();       //烧水，会自动调用注册过对象的方法
+        }
+    }
+}
+</code></pre>
+
+<p>输出为：</p>
+
+<blockquote>
+<p>Alarm：嘀嘀嘀，水已经96度了。<br/>
+Alarm：嘀嘀嘀，水已经96度了。<br/>
+Display：水快烧开了，当前温度96度。<br/>
+// 省略……</p>
+</blockquote>
+
+<h3 id="toc_8">.Net Framework中的委托与事件</h3>
+
+<p>尽管上面的范例很好地完成了我们想要完成的工作，但是我们不仅疑惑：为什么.Net Framework 中的事件模型和上面的不同？为什么有很多的<code>EventArgs</code>参数？</p>
+
+<p>在回答上面的问题之前，我们先搞懂.Net Framework的编码规范：</p>
+
+<ul>
+<li>委托类型的名称都应该以<code>EventHandler</code>结束。</li>
+<li>委托的原型定义：有一个<code>void</code>返回值，并接受两个输入参数：一个<code>Object</code>类型，一个 <code>EventArgs</code>类型(或继承自<code>EventArgs</code>)。</li>
+<li>事件的命名为：委托去掉<code>EventHandler</code>之后剩余的部分。</li>
+<li>继承自<code>EventArgs</code>的类型应该以<code>EventArgs</code>结尾。</li>
+</ul>
+
+<p>再做一下说明：</p>
+
+<blockquote>
+<p>委托声明原型中的<code>Object</code>类型的参数代表了Subject，也就是监视对象，在本例中是 <code>Heater</code>(热水器)。回调函数(比如<code>Alarm</code>的<code>MakeAlert</code>)可以通过它访问触发事件的对象(<code>Heater</code>)。<br/>
+<code>EventArgs</code>对象包含了Observer所感兴趣的数据，在本例中是<code>temperature</code>。</p>
+</blockquote>
+
+<p>上面这些其实不仅仅是为了编码规范而已，这样也使得程序有更大的灵活性。比如说，如果我们不光想获得热水器的温度，还想在Observer端(警报器或者显示器)方法中获得它的生产日期、型号、价格，那么委托和方法的声明都会变得很麻烦，而如果我们将热水器的引用传给警报器的方法，就可以在方法中直接访问热水器了。</p>
+
+<p>现在我们改写之前的范例，让它符合.Net Framework的规范：</p>
+
+<pre><code class="language-csharp">using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Delegate {
+    // 热水器
+    public class Heater {
+        private int temperature;
+        public string type = &quot;RealFire 001&quot;;        // 添加型号作为演示
+        public string area = &quot;China Xian&quot;;          // 添加产地作为演示
+        //声明委托
+        public delegate void BoiledEventHandler(Object sender, BoliedEventArgs e);
+        public event BoiledEventHandler Boiled;     //声明事件
+
+        // 定义BoliedEventArgs类，传递给Observer所感兴趣的信息
+        public class BoliedEventArgs : EventArgs {
+            public readonly int temperature;
+            public BoliedEventArgs(int temperature) {
+                this.temperature = temperature;
+            }
+        }
+
+        // 可以供继承自Heater的类重写，以便继承类拒绝其他对象对它的监视
+        protected virtual void OnBolied(BoliedEventArgs e) {
+            if (Boiled != null) {       // 如果有对象注册
+                Boiled(this, e);         // 调用所有注册对象的方法
+            }
+        }
+
+        // 烧水
+        public void BoilWater() {
+            for (int i = 0; i &lt;= 100; i++) {
+                temperature = i;
+                if (temperature &gt; 95) {
+                    //建立BoliedEventArgs对象
+                    BoliedEventArgs e = new BoliedEventArgs(temperature);
+                    OnBolied(e);       // 调用 OnBolied方法
+                }
+            }
+        }
+    }
+
+    // 警报器
+    public class Alarm {
+        public void MakeAlert(Object sender, Heater.BoliedEventArgs e) {
+            Heater heater = (Heater)sender;  //这里是不是很熟悉呢？
+            //访问 sender 中的公共字段
+            Console.WriteLine(&quot;Alarm：{0} - {1}: &quot;, heater.area, heater.type);
+            Console.WriteLine(&quot;Alarm：嘀嘀嘀，水已经{0}度了。&quot;, e.temperature); 
+            Console.WriteLine();
+        }
+    }
+    // 显示器
+    public class Display {
+        public static void ShowMsg(Object sender, Heater.BoliedEventArgs e) {
+            Heater heater = (Heater)sender;
+            Console.WriteLine(&quot;Display：{0} - {1}: &quot;, heater.area, heater.type);
+            Console.WriteLine(&quot;Display：水快烧开了，当前温度{0}度。&quot;, e.temperature);
+            Console.WriteLine();
+        }
+    }
+
+    class Program {
+        static void Main() {
+            Heater heater = new Heater();
+            Alarm alarm = new Alarm();
+
+            heater.Boiled += alarm.MakeAlert;         //注册方法
+            heater.Boiled += (new Alarm()).MakeAlert; //给匿名对象注册方法
+            heater.Boiled += new Heater.BoiledEventHandler(alarm.MakeAlert);       //也可以这么注册
+            heater.Boiled += Display.ShowMsg;         //注册静态方法 
+
+            heater.BoilWater();       //烧水，会自动调用注册过对象的方法
+        }
+    }
+}
+</code></pre>
+
+<p>输出为：</p>
+
+<blockquote>
+<p>Alarm：China Xian - RealFire 001:<br/>
+Alarm：嘀嘀嘀，水已经96度了。<br/>
+Alarm：China Xian - RealFire 001:<br/>
+Alarm：嘀嘀嘀，水已经96度了。<br/>
+Alarm：China Xian - RealFire 001:<br/>
+Alarm：嘀嘀嘀，水已经96度了。<br/>
+Display：China Xian - RealFire 001:<br/>
+Display：水快烧开了，当前温度96度。<br/>
+// 省略……</p>
+</blockquote>
+
+<h2 id="toc_9">总结</h2>
+
+<p>在本文中我首先通过一个<code>GreetingPeople</code>的小程序向大家介绍了委托的概念、委托用来做什么，随后又引出了事件，接着对委托与事件所产生的中间代码做了粗略的讲述。</p>
+
+<p>在第二个稍微复杂点的热水器的范例中，我向大家简要介绍了Observer设计模式，并通过实现这个范例完成了该模式，随后讲述了.Net Framework中委托、事件的实现方式。</p>
+
+]]></content>
+  </entry>
+  
+</feed>

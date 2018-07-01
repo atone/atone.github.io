@@ -1,0 +1,551 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  Buffalo wzr-hp-g300nh路由器折腾小记 - Naitong Yu
+  
+  </title>
+  <meta name="keywords" content="Buffalo, wzr-hp-g300nh, 路由器, openwrt, pptp, ipv6, isatap" />
+  
+  <link href="atom.xml" rel="alternate" title="Naitong Yu" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+  <script src="asset/highlightjs/highlight.pack.js"></script>
+  <link href="asset/highlightjs/styles/github.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+  function before_search(){
+    var searchVal = 'site:www.yunaitong.cn ' + document.getElementById('search_input').value;
+    document.getElementById('search_q').value = searchVal;
+    return true;
+  }
+</script>
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+
+  <section class="top-bar-section">
+  <div class="row">
+      <div style="position: relative;width:100%;"><div style="position: absolute; width:100%;">
+        <ul id="main-menu" class="left">
+        
+        <li id=""><a target="_self" href="index.html">Home</a></li>
+        
+        <li id=""><a target="_self" href="archives.html">Archives</a></li>
+        
+        </ul>
+
+        <ul class="right" id="search-wrap">
+          <li>
+<form target="_blank" onsubmit="return before_search();" action="https://google.com/search" method="get">
+    <input type="hidden" id="search_q" name="q" value="" />
+    <input tabindex="1" type="search" id="search_input"  placeholder="Search"/>
+</form>
+</li>
+          </ul>
+      </div></div>
+  </div>
+  </section>
+
+</nav>
+
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; Naitong Yu</span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+       
+       <li><a href="index.html">HOME</a></li>
+    <li><a href="archives.html">Archives</a></li>
+    <!--li><a href="about.html">ABOUT</a></li-->
+
+    <li><label>Categories</label></li>
+
+        
+            <li><a href="technology.html">技术</a></li>
+        
+            <li><a href="life.html">生活</a></li>
+        
+            <li><a href="leetcode.html">LeetCode</a></li>
+        
+            <li><a href="neural-networks.html">Neural Networks</a></li>
+         
+
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+
+        <section id="main-content" role="main" class="scroll-container">
+        
+       
+
+ <script type="text/javascript">
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
+</script>
+<div class="row">
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+          <h1>Buffalo wzr-hp-g300nh路由器折腾小记</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2012/12/7</span>
+
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='technology.html'>技术</a></span>
+           
+         
+          <span class="comments">
+            
+              <a href="https://www.yunaitong.cn/configure-buffalo-wzr-hp-g300nh.html#disqus_thread">comments</a>
+            
+
+            
+          </span>
+
+        </div>
+      </div><!-- article -->
+
+      <div class="article-content">
+      <p>之前该路由器一直用的是Open-WRT的固件，但是时间长了之后，总是会遇到莫名其妙的Wifi掉线问题，VPN崩掉的问题，可能是因为一直使用开发版的固件的缘故吧。但是稳定版的Backfire固件似乎有问题，我每刷必成砖，每次都要ttl进行修复。好了闲话少提，这次主要记录的是将该路由器刷成Buffalo官方提供的Professional版本的固件，并且配置使用的过程。</p>
+
+<span id="more"></span><!-- more -->
+
+<h2 id="toc_0">一、刷机</h2>
+
+<p>首先到<a href="http://www.buffalotech.com/support-and-downloads/downloads">这里</a>下载官方的DD-WRT固件。由于之前路由器已经刷了Open-WRT，而官方的固件是有加密的，因此不能使用</p>
+
+<pre><code class="language-bash">mtd -r write firmware.bin firmware
+</code></pre>
+
+<p>这样的方式直接将下载的固件刷入路由器。参考<a href="http://www.dd-wrt.com/wiki/index.php/Buffalo_WZR-HP-G300NH">Wiki</a>的做法是采用TFTP的方式。</p>
+
+<p>该路由器的UBOOT Bootloader在刚启动时，有4s的时间接受TFTP方式上传固件。在这段时间里面，路由器不可<code>ping</code>也没有<code>arp</code>广播，但是其IP固定为<code>192.168.11.1</code>，arp固定为<code>02-AA-BB-CC-DD-1A</code>。刷机方式如下：</p>
+
+<ul>
+<li>将路由器的电源拔掉，将四个LAN口中最靠近WAN口的一个连接到计算机的网口上。</li>
+<li>将计算机的IP地址设置为<code>192.168.11.2</code>，子网掩码为<code>255.255.255.0</code>。</li>
+<li>设置固定arp，如在OS X下为：</li>
+</ul>
+
+<pre><code class="language-bash">sudo arp -s 192.168.11.1 02:aa:bb:cc:dd:1a ifscope en0
+</code></pre>
+
+<ul>
+<li>在终端下，输入</li>
+</ul>
+
+<pre><code class="language-bash">tftp 192.168.11.1
+tftp&gt; verbose
+tftp&gt; binary
+tftp&gt; trace
+tftp&gt; rexmt 1
+tftp&gt; timeout 60
+tftp&gt; put wzrg300nh-firmware.enc
+</code></pre>
+
+<ul>
+<li>输入到最后一句的时候，先不要按下Return，路由器加电，观察交换机的灯，等灯亮后约2秒钟，按下Return键，将固件上传到路由器。这个时间不太好把握，可能需要多实验几次。另外，最好在路由器和电脑之间加一个小交换机，这样计算机不会频繁的进行网卡通断的切换，成功的概率大一些。</li>
+<li>等固件上传完毕后，路由器的红灯会闪，表示正在刷机，完成后会自动重新启动。</li>
+</ul>
+
+<h2 id="toc_1">二、配置PPTP VPN客户端</h2>
+
+<p>校园网对于出校访问有流量限制，需要帐号登录出校才能正常使用。为了实现免登录，也为了节省流量，采取路由器上通过pptp client连接某校内VPN，然后出校流量走VPN的方式。</p>
+
+<p>在ddwrt的web设置界面，选择“服务”-&gt;“VPN”-&gt;“PPTP客户端”</p>
+
+<p><img src="media/14554429092352/QQ20121207-1.png" alt="QQ20121207-1"/></p>
+
+<p>首先启用PPTP客户端，填入服务器的IP，远程子网与远程子网掩码可以通过先在电脑上登录一下VPN来获得。<br/>
+MPPE的选项，根据实际情况来填写，如果没有的话，就写<code>nomppe</code>，如果有的话，填写<code>mppe required</code>。如果连接的是windows VPN服务器，可能需要填写<code>mppe required,no40,no56,stateless</code>或者是<code>mppe required,no40,no56,stateful</code>。<br/>
+保存并且应用之后重启路由，ssh到路由器上就会发现多了一个ppp0的interface。然后需要将默认的网关设置为VPN。</p>
+
+<ul>
+<li>首先需要启用jffs分区，因为dd-wrt的分区是不可写的，只有启用了jffs分区，才可以将自己的脚本保存在上面。</li>
+<li>ssh登录路由器，使用<code>rc_startup</code>来启动一个控制启动脚本，该脚本在系统启动时候自动执行，功能是将<code>/jffs/etc/config/</code>目录下所有后缀名为<code>.startup</code>的脚本都执行一遍。因此将来如果还有需要开机启动的脚本，直接放入<code>/jffs/etc/config</code>中并且以<code>.startup</code>为后缀名即可。</li>
+</ul>
+
+<pre><code class="language-bash">nvram set rc_startup=&quot;sh /jffs/etc/config/my_startup.sh&quot;
+nvram commit
+</code></pre>
+
+<ul>
+<li>确保目录存在</li>
+</ul>
+
+<pre><code class="language-bash">mkdir -p /jffs/etc/config
+</code></pre>
+
+<ul>
+<li>创建<code>my_startup.sh</code>启动脚本：</li>
+</ul>
+
+<pre><code class="language-bash">vi /jffs/etc/config/my_startup.sh
+</code></pre>
+
+<ul>
+<li>输入下面的内容</li>
+</ul>
+
+<pre><code class="language-bash">#!/bin/sh
+for I in `/bin/ls /jffs/etc/config/*.startup`
+do
+    sh $I&amp;
+done
+</code></pre>
+
+<ul>
+<li>调整权限</li>
+</ul>
+
+<pre><code class="language-bash">chmod 700 /jffs/etc/config/my_startup.sh
+</code></pre>
+
+<ul>
+<li>然后创建VPN的脚本</li>
+</ul>
+
+<pre><code class="language-bash">vi /jffs/etc/config/vpn.startup
+</code></pre>
+
+<ul>
+<li>输入如下内容</li>
+</ul>
+
+<pre><code class="language-bash">#!/bin/sh
+sleep 90
+OLDGW=$(nvram get wan_gateway)
+VPNSRV=$(nvram get pptpd_client_srvip)
+PPTPDEV=ppp0
+VPNGW=$(ifconfig $PPTPDEV | grep -Eo &quot;P-t-P:([0-9.]+)&quot; | cut -d: -f2)
+route add -host $VPNSRV gw $OLDGW
+route del default gw $OLDGW
+route add default gw $VPNGW
+</code></pre>
+
+<ul>
+<li>调整权限</li>
+</ul>
+
+<pre><code class="language-bash">chmod 700 /jffs/etc/config/vpn.startup
+</code></pre>
+
+<ul>
+<li>将校内的网段用route命令使之走校园网的网关，此处不再详述。</li>
+<li>重启之后，90s网络稳定后，即可通过VPN走校外的流量。</li>
+</ul>
+
+<h2 id="toc_2">三、配置额外的DNSMasq选项</h2>
+
+<p>由于Apple在中国地区没有服务器，所以App Store的下载速度一直让人诟病。解决方案就是强制指定App Store的服务器为香港或者澳门、台湾的服务器。一般有两种方法：</p>
+
+<ol>
+<li>修改DNS。采用特定的DNS，该DNS对于App Store的访问特别做了优化，可以将App Store的地址解析为你的网络访问最快的地址。优点：操作简单。缺点：所有的解析都是通过修改后的DNS进行，因此对于其他的网络，特别是本地的一些网络（比如笔者所在的教育网）的解析有时候会出错，造成访问网络缓慢。</li>
+<li>修改hosts。将App Store的条目写入hosts中，这样不需要修改dns，即可以达到加速效果。优点：不修改dns，不影响其他网络访问速度。缺点：麻烦，需要手动测试最快的app store地址，而且未越狱的iPhone没法修改hosts。</li>
+</ol>
+
+<p>为了方便路由器子网内设备（一台Macbook Pro，一台iPhone）能够零配置加速App Store的访问，我采取在路由器上附加hosts的方法。这样的话，路由器子网下面所有的设备，都能够不用改配置就可以加速App Store的访问，并且不影响对其他网址的解析。方法如下：</p>
+
+<ul>
+<li>将包含App Store加速的hosts文件通过scp的方式复制到路由器上，关于如何获得该hosts文件，这里不详细展开，感兴趣的同学，可以<a href="http://bbs.weiphone.com/read.php?tid=2397269">参考这里</a>。我们假设将该文件放在了<code>/jffs/etc/hosts</code>。</li>
+<li>在DD-WRT的配置界面，选择“服务”-&gt;“DNSMasq”，在“DNSMasq附加选项”中填入&quot;addn-hosts=/jffs/etc/hosts&quot;（不加引号）保存应用即可。</li>
+</ul>
+
+<p><img src="media/14554429092352/QQ20121207-2.png" alt="QQ20121207-2"/></p>
+
+<h2 id="toc_3">四、Hack IPv6 Isatap</h2>
+
+<p>在<a href="mac-os-x-tsinghua-ipv6-isatap.html">前面的文章</a>中，我提到过，由于学校给紫荆地区的IPv6强行加上了认证，且认证服务器经常崩溃，导致原生IPv6使用十分不便，因此，我采用走ISATAP隧道的方法来绕过认证。但是，学校的隧道给分配的地址是/64的，无法进一步分配，因此，当计算机退到路由器的内网之后，就没法使用ISATAP隧道了。</p>
+
+<p>考虑到局域网内，只有一台主机需要使用IPv6，因此对ISATAP进行了hack，由于ISATAP和6to4协议都是使用41端口，因此，我把来自外网的41端口的数据都转发给我的主机。注意要首先给主机一个固定的IP分配。配置图如下：</p>
+
+<p><img src="media/14554429092352/QQ20121207-3.png" alt="QQ20121207-3"/></p>
+
+<p>然后在计算机上执行下面的脚本，即可。</p>
+
+<pre><code class="language-bash">#!/bin/sh
+LAN_IP=`/sbin/ifconfig en0 | grep inet | grep -v inet6 | awk &#39;{print $2}&#39;`
+WAN_IP=59.66.210.123 # replace with your wan ip
+
+# just for Tsinghua&#39;s ISATAP router
+/sbin/ifconfig gif0 tunnel $LAN_IP 59.66.4.50
+/sbin/ifconfig gif0 inet6 2001:da8:200:900e:0:5efe:$WAN_IP prefixlen 64
+/sbin/ifconfig gif0 up
+/sbin/route delete -inet6 default
+/sbin/route add -inet6 default 2001:da8:200:900e::1
+</code></pre>
+
+<p>注意：将WAN_IP替换为你的WAN IP，该脚本示例为使用清华大学的ISATAP隧道路由器。</p>
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+          <a href="configure-ipv6-behind-nat-on-os-x.html" 
+          title="Previous Post: OS X下在NAT后连接清华IPv6的脚本">&laquo; OS X下在NAT后连接清华IPv6的脚本</a>
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="mac-os-x-tsinghua-ipv6-isatap.html" 
+          title="Next Post: Mac OS X下通过ISATAP连接清华的IPv6的方法">Mac OS X下通过ISATAP连接清华的IPv6的方法 &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          
+
+          
+            <div id="disqus_thread"></div>
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
+
+
+
+
+ <div class="large-4 medium-4 columns">
+  <div class="hide-for-small">
+    <div id="sidebar" class="sidebar">
+          <div id="site-info" class="site-info">
+            
+                <div class="site-a-logo"><img src="asset/img/icon.jpg" /></div>
+            
+                <h1>Naitong Yu</h1>
+                <div class="site-des">思索与前行</div>
+                <div class="social">
+
+
+
+
+
+
+
+<a target="_blank" class="weibo" href="http://weibo.com/duzhanxingfu" title="weibo">Weibo</a>
+<a target="_blank" class="twitter" target="_blank" href="https://twitter.com/tonyfish9" title="Twitter">Twitter</a>
+<a target="_blank" class="github" target="_blank" href="https://github.com/atone" title="GitHub">GitHub</a>
+
+  <a target="_blank" class="rss" href="atom.xml" title="RSS">RSS</a>
+                
+              	 </div>
+          	</div>
+
+             
+
+              <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Categories</h2>
+                </div>
+                <div class="side-content">
+
+      	<p class="cat-list">
+        
+            <a href="technology.html"><strong>技术</strong></a>
+        
+            <a href="life.html"><strong>生活</strong></a>
+        
+            <a href="leetcode.html"><strong>LeetCode</strong></a>
+        
+            <a href="neural-networks.html"><strong>Neural Networks</strong></a>
+         
+        </p>
+
+
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Recent Posts</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+	      
+		      
+			      <li class="post">
+			        <a href="binary-tree-traverse.html">二叉树的遍历（前序、中序、后序、层次）</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="understanding-lstm-networks.html">理解 LSTM 网络</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="count-of-smaller-numbers-after-self.html">Count of Smaller Numbers After Self</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="fenwick-tree.html">Fenwick Tree</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="openwrt-isatap-and-ipv6-nat.html">在OpenWRT中配置isatap以及IPv6 NAT的方法</a>
+			      </li>
+		     
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		   
+		  		</ul>
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Links</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+        
+            <li class="post">
+              <a href="http://www.jeyzhang.com">Jey Zhang's Blog</a>
+            </li>
+
+            <li class="post">
+              <a href="http://annieyan.github.io">Annie Yan's Blog</a>
+            </li>
+          
+          </ul>
+                </div>
+              </div>
+
+        </div><!-- sidebar -->
+      </div><!-- hide for small -->
+</div><!-- large 4 -->
+
+</div><!-- row -->
+
+ <div class="page-bottom clearfix">
+  <div class="row">
+   <p class="copyright">Copyright &copy; 2016
+   <a target="_blank" href="http://www.yunaitong.cn">Naitong Yu</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+
+<script type="text/javascript">
+    var disqus_shortname = 'yunaitong'; 
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+
+<script type="text/javascript">
+var disqus_shortname = 'yunaitong'; 
+
+(function () {
+var s = document.createElement('script'); s.async = true;
+s.type = 'text/javascript';
+s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+(document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+  
+    
+
+    <script src="asset/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+      function fixSidebarHeight(){
+        var w1 = $('.markdown-body').height();
+          var w2 = $('#sidebar').height();
+          if (w1 > w2) { $('#sidebar').height(w1); };
+      }
+      $(function(){
+        fixSidebarHeight();
+      })
+      $(window).load(function(){
+          fixSidebarHeight();
+      });
+     
+    </script>
+
+    
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({TeX: { equationNumbers: { autoNumber: "AMS" } }});</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-73775894-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?83a452a4e8562457b9fbc637921b1f29";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  </body>
+</html>

@@ -1,0 +1,491 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+    
+  在OpenWRT中配置isatap以及IPv6 NAT的方法 - Naitong Yu
+  
+  </title>
+  <meta name="keywords" content="openwrt, isatap, ipv6, nat" />
+  
+  <link href="atom.xml" rel="alternate" title="Naitong Yu" type="application/atom+xml">
+    <link rel="stylesheet" href="asset/css/foundation.min.css" />
+    <link rel="stylesheet" href="asset/css/docs.css" />
+    <script src="asset/js/vendor/modernizr.js"></script>
+    <script src="asset/js/vendor/jquery.js"></script>
+  <script src="asset/highlightjs/highlight.pack.js"></script>
+  <link href="asset/highlightjs/styles/github.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script>hljs.initHighlightingOnLoad();</script>
+<script type="text/javascript">
+  function before_search(){
+    var searchVal = 'site:www.yunaitong.cn ' + document.getElementById('search_input').value;
+    document.getElementById('search_q').value = searchVal;
+    return true;
+  }
+</script>
+  </head>
+  <body class="antialiased hide-extras">
+    
+    <div class="marketing off-canvas-wrap" data-offcanvas>
+      <div class="inner-wrap">
+
+
+<nav class="top-bar docs-bar hide-for-small" data-topbar>
+
+
+  <section class="top-bar-section">
+  <div class="row">
+      <div style="position: relative;width:100%;"><div style="position: absolute; width:100%;">
+        <ul id="main-menu" class="left">
+        
+        <li id=""><a target="_self" href="index.html">Home</a></li>
+        
+        <li id=""><a target="_self" href="archives.html">Archives</a></li>
+        
+        </ul>
+
+        <ul class="right" id="search-wrap">
+          <li>
+<form target="_blank" onsubmit="return before_search();" action="https://google.com/search" method="get">
+    <input type="hidden" id="search_q" name="q" value="" />
+    <input tabindex="1" type="search" id="search_input"  placeholder="Search"/>
+</form>
+</li>
+          </ul>
+      </div></div>
+  </div>
+  </section>
+
+</nav>
+
+        <nav class="tab-bar show-for-small">
+  <a href="javascript:void(0)" class="left-off-canvas-toggle menu-icon">
+    <span> &nbsp; Naitong Yu</span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+      <ul class="off-canvas-list">
+       
+       <li><a href="index.html">HOME</a></li>
+    <li><a href="archives.html">Archives</a></li>
+    <!--li><a href="about.html">ABOUT</a></li-->
+
+    <li><label>Categories</label></li>
+
+        
+            <li><a href="technology.html">技术</a></li>
+        
+            <li><a href="life.html">生活</a></li>
+        
+            <li><a href="leetcode.html">LeetCode</a></li>
+        
+            <li><a href="neural-networks.html">Neural Networks</a></li>
+         
+
+      </ul>
+    </aside>
+
+<a class="exit-off-canvas" href="#"></a>
+
+
+        <section id="main-content" role="main" class="scroll-container">
+        
+       
+
+ <script type="text/javascript">
+  $(function(){
+    $('#menu_item_index').addClass('is_active');
+  });
+</script>
+<div class="row">
+  <div class="large-8 medium-8 columns">
+      <div class="markdown-body article-wrap">
+       <div class="article">
+          
+          <h1>在OpenWRT中配置isatap以及IPv6 NAT的方法</h1>
+     
+        <div class="read-more clearfix">
+          <span class="date">2015/7/6</span>
+
+          <span>posted in&nbsp;</span> 
+          
+              <span class="posted-in"><a href='technology.html'>技术</a></span>
+           
+         
+          <span class="comments">
+            
+              <a href="https://www.yunaitong.cn/openwrt-isatap-and-ipv6-nat.html#disqus_thread">comments</a>
+            
+
+            
+          </span>
+
+        </div>
+      </div><!-- article -->
+
+      <div class="article-content">
+      <p>在紫荆公寓这边，由于原生<code>IPv6</code>需要认证才能使用，十分不方便。而使用<code>isatap</code>隧道的方法访问<code>IPv6</code>则十分的稳定。但是由于<code>isatap</code>隧道只能够得到一个<code>Global</code>的<code>IPv6</code>的地址，因此需要在路由器上启用<code>IPv6 NAT</code>才能够使得路由器后面的设备无缝访问<code>IPv6</code>资源。之前的路由器，在配置好之后稳定地运行了一年有余，前几日因为一些需求，需要重新配置路由器，因此将配置的过程记录下来，供今后参考。</p>
+
+<span id="more"></span><!-- more -->
+
+<h2 id="toc_0">网络情况</h2>
+
+<ul>
+<li>软件版本: OpenWRT Barrier Breaker 14.07</li>
+<li>WAN: 通过isatap接入到IPv6</li>
+<li>LAN: 通过radvd广播得到IPv6地址，使用ip6tables的NAT转发功能访问外网</li>
+</ul>
+
+<h2 id="toc_1">配置</h2>
+
+<ul>
+<li>安装软件包</li>
+</ul>
+
+<p>用到的软件包有<code>6in4</code> <code>kmod-ipt-nat6</code> <code>luci-proto-ipv6</code> <code>luci-app-radvd</code>，最后两个是跟<code>luci</code>相关的，不用界面的可以忽略。</p>
+
+<ul>
+<li>禁用自带的IPv6管理</li>
+</ul>
+
+<p>在<code>/etc/config/network</code>中，将<code>config globals &#39;globals&#39;</code>部分删掉，将<code>config interface &#39;lan&#39;</code>中的<code>ip6assign</code>和<code>ip6addr</code>删掉，在<code>lan</code>，<code>wan</code>和<code>wan6</code>中分别加上<code>option delegate 0</code>，表示不使用内置的<code>IPv6</code>配置。</p>
+
+<ul>
+<li>配置<code>isatap</code>隧道</li>
+</ul>
+
+<p>将<code>config interface &#39;wan6&#39;</code>中的原来的内容删掉，替换如下内容：</p>
+
+<pre><code>config interface &#39;wan6&#39;            
+        option proto &#39;6in4&#39;           
+        option ipaddr &#39;59.66.210.47&#39;         
+        option peeraddr &#39;166.111.21.1&#39;
+        option ip6addr &#39;2402:f000:1:1501:200:5efe:59.66.210.47/64&#39;
+        option ip6prefix &#39;fc00:512b:512b::/64&#39;                    
+        option delegate &#39;0&#39;
+</code></pre>
+
+<p>其中<code>ipaddr</code>是路由器的<code>ipv4</code>地址，<code>peeraddr</code>是<code>isatap</code>隧道服务器的地址，<code>ip6addr</code>是路由器的<code>ipv6</code>公网地址。这里要注意的是，一定要加上<code>ip6prefix</code>这一项，该项填写的是给路由器下游分配的<code>ipv6</code>地址的前缀，如果不填写这一项的话，可能会出现在路由器中能够<code>ping</code>通外部<code>ipv6</code>地址，但是在下游的网络设备中却<code>ping</code>不通的问题。</p>
+
+<ul>
+<li>配置<code>LAN</code></li>
+</ul>
+
+<p>我们需要给<code>LAN</code>一个<code>ipv6</code>地址，在<code>config interface &#39;lan&#39;</code>中，加入一行<code>option ip6addr &#39;fc00:512b:512b::1/64&#39;</code>。要注意该<code>ipv6</code>地址的前缀一定要和前面配置<code>isatap</code>中填写的一致。</p>
+
+<ul>
+<li>配置<code>radvd</code></li>
+</ul>
+
+<p>在<code>/etc/config/radvd</code>中，使用下面的配置</p>
+
+<pre><code>config interface                                                                
+        option interface &#39;lan&#39;                                                  
+        option AdvSendAdvert &#39;1&#39;                                                
+        list client &#39;&#39;                                                          
+        option ignore &#39;0&#39;                                                       
+        option IgnoreIfMissing &#39;1&#39;                                              
+        option AdvSourceLLAddress &#39;1&#39;                                           
+        option AdvDefaultPreference &#39;high&#39;                                      
+        option MinRtrAdvInterval &#39;5&#39;                                            
+        option MaxRtrAdvInterval &#39;10&#39;                                           
+                                                                                
+config prefix                                                                   
+        option interface &#39;lan&#39;                                                  
+        option AdvOnLink &#39;1&#39;                                                    
+        option AdvAutonomous &#39;1&#39;                                                
+        option ignore &#39;0&#39;                                                       
+        list prefix &#39;fc00:512b:512b::/64&#39;                                       
+        option AdvRouterAddr &#39;1&#39;                                                
+                                                                                
+config route                                                                    
+        option interface &#39;lan&#39;                                                  
+        list prefix &#39;&#39;                                                          
+        option ignore &#39;1&#39;                                                       
+                                                                                
+config rdnss                                                                    
+        option interface &#39;lan&#39;                                                  
+        list addr &#39;&#39;                                                            
+        option ignore &#39;1&#39;                                                       
+                                                                                
+config dnssl                                                                    
+        option interface &#39;lan&#39;                                                  
+        list suffix &#39;&#39;                                                          
+        option ignore &#39;1&#39;
+</code></pre>
+
+<p>配置<code>radvd</code>开机启动</p>
+
+<pre><code class="language-bash">/etc/init.d/radvd enable
+</code></pre>
+
+<ul>
+<li>设置<code>NAT</code>转发</li>
+</ul>
+
+<p>在<code>/etc/firewall.user</code>中，最后加上一句<code>ip6tables -t nat -I POSTROUTING -s fc00:512b:512b::/64 -j MASQUERADE</code></p>
+
+<ul>
+<li>重启网络服务，启动<code>radvd</code></li>
+</ul>
+
+<pre><code class="language-bash">/etc/init.d/network restart
+/etc/init.d/radvd start
+</code></pre>
+
+<p>如果正常的话，内网就可以获得<code>ipv6</code>地址，并且能够正常访问<code>ipv6</code>网络了 。</p>
+
+      </div>
+
+      <div class="row">
+        <div class="large-6 columns">
+        <p class="text-left" style="padding:15px 0px;">
+      
+          <a href="fenwick-tree.html" 
+          title="Previous Post: Fenwick Tree">&laquo; Fenwick Tree</a>
+      
+        </p>
+        </div>
+        <div class="large-6 columns">
+      <p class="text-right" style="padding:15px 0px;">
+      
+          <a  href="new-mechanical-keyboard.html" 
+          title="Next Post: Filco Minilar Air 机械键盘">Filco Minilar Air 机械键盘 &raquo;</a>
+      
+      </p>
+        </div>
+      </div>
+      <div class="comments-wrap">
+        <div class="share-comments">
+          
+
+          
+            <div id="disqus_thread"></div>
+          
+
+          
+        </div>
+      </div>
+    </div><!-- article-wrap -->
+  </div><!-- large 8 -->
+
+
+
+
+ <div class="large-4 medium-4 columns">
+  <div class="hide-for-small">
+    <div id="sidebar" class="sidebar">
+          <div id="site-info" class="site-info">
+            
+                <div class="site-a-logo"><img src="asset/img/icon.jpg" /></div>
+            
+                <h1>Naitong Yu</h1>
+                <div class="site-des">思索与前行</div>
+                <div class="social">
+
+
+
+
+
+
+
+<a target="_blank" class="weibo" href="http://weibo.com/duzhanxingfu" title="weibo">Weibo</a>
+<a target="_blank" class="twitter" target="_blank" href="https://twitter.com/tonyfish9" title="Twitter">Twitter</a>
+<a target="_blank" class="github" target="_blank" href="https://github.com/atone" title="GitHub">GitHub</a>
+
+  <a target="_blank" class="rss" href="atom.xml" title="RSS">RSS</a>
+                
+              	 </div>
+          	</div>
+
+             
+
+              <div id="site-categories" class="side-item ">
+                <div class="side-header">
+                  <h2>Categories</h2>
+                </div>
+                <div class="side-content">
+
+      	<p class="cat-list">
+        
+            <a href="technology.html"><strong>技术</strong></a>
+        
+            <a href="life.html"><strong>生活</strong></a>
+        
+            <a href="leetcode.html"><strong>LeetCode</strong></a>
+        
+            <a href="neural-networks.html"><strong>Neural Networks</strong></a>
+         
+        </p>
+
+
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Recent Posts</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+	      
+		      
+			      <li class="post">
+			        <a href="binary-tree-traverse.html">二叉树的遍历（前序、中序、后序、层次）</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="understanding-lstm-networks.html">理解 LSTM 网络</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="count-of-smaller-numbers-after-self.html">Count of Smaller Numbers After Self</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="fenwick-tree.html">Fenwick Tree</a>
+			      </li>
+		     
+		  
+		      
+			      <li class="post">
+			        <a href="openwrt-isatap-and-ipv6-nat.html">在OpenWRT中配置isatap以及IPv6 NAT的方法</a>
+			      </li>
+		     
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		  
+		      
+		   
+		  		</ul>
+                </div>
+              </div>
+
+              <div id="site-categories" class="side-item">
+                <div class="side-header">
+                  <h2>Links</h2>
+                </div>
+                <div class="side-content">
+                <ul class="posts-list">
+        
+            <li class="post">
+              <a href="http://www.jeyzhang.com">Jey Zhang's Blog</a>
+            </li>
+
+            <li class="post">
+              <a href="http://annieyan.github.io">Annie Yan's Blog</a>
+            </li>
+          
+          </ul>
+                </div>
+              </div>
+
+        </div><!-- sidebar -->
+      </div><!-- hide for small -->
+</div><!-- large 4 -->
+
+</div><!-- row -->
+
+ <div class="page-bottom clearfix">
+  <div class="row">
+   <p class="copyright">Copyright &copy; 2016
+   <a target="_blank" href="http://www.yunaitong.cn">Naitong Yu</a>,&nbsp; 
+Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
+  </div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+
+<script type="text/javascript">
+    var disqus_shortname = 'yunaitong'; 
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+
+<script type="text/javascript">
+var disqus_shortname = 'yunaitong'; 
+
+(function () {
+var s = document.createElement('script'); s.async = true;
+s.type = 'text/javascript';
+s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+(document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+  
+    
+
+    <script src="asset/js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+      function fixSidebarHeight(){
+        var w1 = $('.markdown-body').height();
+          var w2 = $('#sidebar').height();
+          if (w1 > w2) { $('#sidebar').height(w1); };
+      }
+      $(function(){
+        fixSidebarHeight();
+      })
+      $(window).load(function(){
+          fixSidebarHeight();
+      });
+     
+    </script>
+
+    
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({TeX: { equationNumbers: { autoNumber: "AMS" } }});</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-73775894-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?83a452a4e8562457b9fbc637921b1f29";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+  </body>
+</html>
