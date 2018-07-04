@@ -159,7 +159,7 @@
 
 <p>将<code>config interface &#39;wan6&#39;</code>中的原来的内容删掉，替换如下内容：</p>
 
-<pre><code>config interface &#39;wan6&#39;            
+<pre><code class="language-text">config interface &#39;wan6&#39;            
         option proto &#39;6in4&#39;           
         option ipaddr &#39;59.66.210.47&#39;         
         option peeraddr &#39;166.111.21.1&#39;
@@ -182,7 +182,7 @@
 
 <p>在<code>/etc/config/radvd</code>中，使用下面的配置</p>
 
-<pre><code>config interface                                                                
+<pre><code class="language-text">config interface                                                                
         option interface &#39;lan&#39;                                                  
         option AdvSendAdvert &#39;1&#39;                                                
         list client &#39;&#39;                                                          

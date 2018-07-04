@@ -141,7 +141,7 @@
 
 <p>在计算机中，<code>lowbit(x)</code>计算方式如下：</p>
 
-<pre><code class="language-c++">int lowbit(int x) {
+<pre><code class="language-cpp">int lowbit(int x) {
     return x &amp; -x;
 }
 </code></pre>
@@ -171,7 +171,7 @@
 
 <p>实现代码如下：</p>
 
-<pre><code class="language-C++">int sum(int x) {
+<pre><code class="language-cpp">int sum(int x) {
     int ans = 0;
     while(x &gt; 0) {
         ans += tree[x];
@@ -187,7 +187,7 @@
 
 <p>实现代码如下：</p>
 
-<pre><code class="language-C++">void add(int x, int val) {
+<pre><code class="language-cpp">void add(int x, int val) {
     while(x &lt;= N) {
         tree[x] += val;
         x += lowbit(x);
@@ -201,7 +201,7 @@
 
 <p>实现代码如下：</p>
 
-<pre><code class="language-C++">int get(int x) {
+<pre><code class="language-cpp">int get(int x) {
     int ans = tree[x];
     if (x &gt; 0) {
         int z = x - lowbit(x);

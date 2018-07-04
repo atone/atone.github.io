@@ -145,7 +145,7 @@
 
 <p>这是一个前辈写的，非常详细</p>
 
-<pre><code class="language-c++">//main.cpp
+<pre><code class="language-cpp">//main.cpp
 int a = 0;  // 全局初始化区
 char *p1;   //全局未初始化区
 int main()
@@ -194,7 +194,7 @@ int main()
 
 <h3 id="toc_8">2.6 存取效率的比较</h3>
 
-<pre><code class="language-c++">char s1[] = &quot;aaaaaaaaaaa&quot;;
+<pre><code class="language-cpp">char s1[] = &quot;aaaaaaaaaaa&quot;;
 char *s2 = &quot;bbbbbbbbbbb&quot;;
 </code></pre>
 
@@ -202,7 +202,7 @@ char *s2 = &quot;bbbbbbbbbbb&quot;;
 
 <p>比如：</p>
 
-<pre><code class="language-c++">int main()
+<pre><code class="language-cpp">int main()
 {
     char  a = 1;
     char c[] = &quot;1234567890&quot;;
@@ -217,13 +217,13 @@ char *s2 = &quot;bbbbbbbbbbb&quot;;
 
 <p>10: a = c[1];</p>
 
-<pre><code>00401067 8A 4D F1 mov cl,byte ptr[ebp-0Fh] 
+<pre><code class="language-text">00401067 8A 4D F1 mov cl,byte ptr[ebp-0Fh] 
 0040106A 88 4D FC mov byte ptr[ebp-4],cl 
 </code></pre>
 
 <p>11: a = p[1];</p>
 
-<pre><code>0040106D 8B 55 EC mov edx, dword ptr[ebp-14h] 
+<pre><code class="language-text">0040106D 8B 55 EC mov edx, dword ptr[ebp-14h] 
 00401070 8A 42 01 mov al, byte ptr[edx+1] 
 00401073 88 45 FC mov byte ptr[ebp-4], al
 </code></pre>

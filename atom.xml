@@ -4,7 +4,7 @@
   <title><![CDATA[Naitong Yu]]></title>
   <link href="https://www.yunaitong.cn/atom.xml" rel="self"/>
   <link href="https://www.yunaitong.cn/"/>
-  <updated>2018-07-02T09:28:54+08:00</updated>
+  <updated>2018-07-04T11:22:35+08:00</updated>
   <id>https://www.yunaitong.cn/</id>
   <author>
     <name><![CDATA[]]></name>
@@ -254,7 +254,7 @@
 
 <p><img src="media/14585445702525/14585476990034.jpg" alt="" class="mw_img_center" style="width:400px;display: block; clear:both; margin: 0 auto;"/></p>
 
-<p>然而，有时候我们需要更多的上下文信息。比如，我们想预测句子“I grew up in France&hellip; I speak fluent <em>French</em>”中的最后一个单词。最近的信息告诉我们，最后一个单词可能是某种语言的名字，然而如果我们想确定到底是哪种语言的话，我们需要France这个更远的上下文信息。实际上，相关信息和需要该信息的位置之间的距离可能非常的远。</p>
+<p>然而，有时候我们需要更多的上下文信息。比如，我们想预测句子“I grew up in France... I speak fluent <em>French</em>”中的最后一个单词。最近的信息告诉我们，最后一个单词可能是某种语言的名字，然而如果我们想确定到底是哪种语言的话，我们需要France这个更远的上下文信息。实际上，相关信息和需要该信息的位置之间的距离可能非常的远。</p>
 
 <p>不幸的是，随着距离的增大，RNN对于如何将这样的信息连接起来无能为力。</p>
 
@@ -366,7 +366,7 @@
 
 <p>在写这篇文章之前，我在我所授课的两学期关于神经网络的课程上练习讲授了LSTM。感谢所有的参与者对我的耐心以及反馈。</p>
 
-<h6 id="toc_8">注：本文翻译自<a href="http://colah.github.io/">colah&rsquo;s blog</a>，原文链接：<a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/">http://colah.github.io/posts/2015-08-Understanding-LSTMs/</a>。</h6>
+<h6 id="toc_8">注：本文翻译自<a href="http://colah.github.io/">colah&#39;s blog</a>，原文链接：<a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/">http://colah.github.io/posts/2015-08-Understanding-LSTMs/</a>。</h6>
 
 ]]></content>
   </entry>
@@ -448,7 +448,7 @@ class FenwickTree(object):
 
 <h3 id="toc_4">解法II：Binary Search Tree</h3>
 
-<pre><code class="language-Python">class Solution(object):
+<pre><code class="language-python">class Solution(object):
     def __init__(self):
         self.root = None
 
@@ -520,7 +520,7 @@ class Node(object):
 
 <p>在计算机中，<code>lowbit(x)</code>计算方式如下：</p>
 
-<pre><code class="language-c++">int lowbit(int x) {
+<pre><code class="language-cpp">int lowbit(int x) {
     return x &amp; -x;
 }
 </code></pre>
@@ -550,7 +550,7 @@ class Node(object):
 
 <p>实现代码如下：</p>
 
-<pre><code class="language-C++">int sum(int x) {
+<pre><code class="language-cpp">int sum(int x) {
     int ans = 0;
     while(x &gt; 0) {
         ans += tree[x];
@@ -566,7 +566,7 @@ class Node(object):
 
 <p>实现代码如下：</p>
 
-<pre><code class="language-C++">void add(int x, int val) {
+<pre><code class="language-cpp">void add(int x, int val) {
     while(x &lt;= N) {
         tree[x] += val;
         x += lowbit(x);
@@ -580,7 +580,7 @@ class Node(object):
 
 <p>实现代码如下：</p>
 
-<pre><code class="language-C++">int get(int x) {
+<pre><code class="language-cpp">int get(int x) {
     int ans = tree[x];
     if (x &gt; 0) {
         int z = x - lowbit(x);
@@ -668,7 +668,7 @@ class Node(object):
 
 <p>将<code>config interface &#39;wan6&#39;</code>中的原来的内容删掉，替换如下内容：</p>
 
-<pre><code>config interface &#39;wan6&#39;            
+<pre><code class="language-text">config interface &#39;wan6&#39;            
         option proto &#39;6in4&#39;           
         option ipaddr &#39;59.66.210.47&#39;         
         option peeraddr &#39;166.111.21.1&#39;
@@ -691,7 +691,7 @@ class Node(object):
 
 <p>在<code>/etc/config/radvd</code>中，使用下面的配置</p>
 
-<pre><code>config interface                                                                
+<pre><code class="language-text">config interface                                                                
         option interface &#39;lan&#39;                                                  
         option AdvSendAdvert &#39;1&#39;                                                
         list client &#39;&#39;                                                          
@@ -1132,7 +1132,7 @@ fi
 
 <p>内容为：</p>
 
-<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+<pre><code class="language-markup">&lt;?xml version=&quot;1.0&quot;?&gt;
 &lt;!DOCTYPE fontconfig SYSTEM &quot;fonts.dtd&quot;&gt;
 &lt;!-- SimSun Configure File --&gt;
 &lt;fontconfig&gt;
@@ -1281,7 +1281,7 @@ fi
 
 <p>这是一个前辈写的，非常详细</p>
 
-<pre><code class="language-c++">//main.cpp
+<pre><code class="language-cpp">//main.cpp
 int a = 0;  // 全局初始化区
 char *p1;   //全局未初始化区
 int main()
@@ -1330,7 +1330,7 @@ int main()
 
 <h3 id="toc_8">2.6 存取效率的比较</h3>
 
-<pre><code class="language-c++">char s1[] = &quot;aaaaaaaaaaa&quot;;
+<pre><code class="language-cpp">char s1[] = &quot;aaaaaaaaaaa&quot;;
 char *s2 = &quot;bbbbbbbbbbb&quot;;
 </code></pre>
 
@@ -1338,7 +1338,7 @@ char *s2 = &quot;bbbbbbbbbbb&quot;;
 
 <p>比如：</p>
 
-<pre><code class="language-c++">int main()
+<pre><code class="language-cpp">int main()
 {
     char  a = 1;
     char c[] = &quot;1234567890&quot;;
@@ -1353,13 +1353,13 @@ char *s2 = &quot;bbbbbbbbbbb&quot;;
 
 <p>10: a = c[1];</p>
 
-<pre><code>00401067 8A 4D F1 mov cl,byte ptr[ebp-0Fh] 
+<pre><code class="language-text">00401067 8A 4D F1 mov cl,byte ptr[ebp-0Fh] 
 0040106A 88 4D FC mov byte ptr[ebp-4],cl 
 </code></pre>
 
 <p>11: a = p[1];</p>
 
-<pre><code>0040106D 8B 55 EC mov edx, dword ptr[ebp-14h] 
+<pre><code class="language-text">0040106D 8B 55 EC mov edx, dword ptr[ebp-14h] 
 00401070 8A 42 01 mov al, byte ptr[edx+1] 
 00401073 88 45 FC mov byte ptr[ebp-4], al
 </code></pre>
